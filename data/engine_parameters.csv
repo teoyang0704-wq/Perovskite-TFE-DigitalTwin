@@ -1,0 +1,9 @@
+engine_symbol,material_id,chosen_value,note
+f0,AL2O3_ALD,0.399,minimal runtime copy - full provenance DB ships in the v0.9.2 bundle
+d_close_nm,AL2O3_ALD,1.07,
+f_res,AL2O3_ALD,3.99e-8,
+d_crit_nm,AL2O3_ALD,43.9,
+r_pinhole,AL2O3_ALD,5e-8,
+D_ref,PARYLENE_C_CVD,5.0e-13,
+S,PARYLENE_C_CVD,1.5,
+M_crit,PSC_DEVICE,0.01,figure baseline; device-anchored floor 0.97 applied in app via x97 toggle
