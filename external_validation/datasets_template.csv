@@ -1,0 +1,8 @@
+row_id,source_id,doi,system,substrate,T_C,RH_pct,structure_json,measured_wvtr_gm2day,censor,test_duration_h,role,extraction_status,notes
+X001,LEE2018,10.1002/aenm.201701928?,pV3D3/Al2O3 dyads,PEN?,38,90,"{""n"":1,""d_in_nm"":null,""d_org_nm"":null}",null,=,null,anchor,NEEDS_PDF,Fig.2d dyad-1; VERIFY doi
+X002,LEE2018,,pV3D3/Al2O3 dyads,PEN?,38,90,"{""n"":2}",null,=,null,predict,NEEDS_PDF,Fig.2d dyad-2 (+lag time if given)
+X003,LEE2018,,pV3D3/Al2O3 dyads,PEN?,38,90,"{""n"":3}",2.0e-4,~,null,predict,NEEDS_PDF,abstract-level value in DB BM014 (needs_check); thicknesses required
+X004,LEE2018,,pV3D3/Al2O3 dyads,PEN?,38,90,"{""n"":4}",null,=,null,predict,NEEDS_PDF,
+X005,CHOI2018,,thermal-ALD Al2O3 50nm single,PET?,45,100,"{""n"":1,""d_in_nm"":50,""d_org_nm"":0}",1.84e-2,=,null,cross_temperature_check,DONE_IN_PAPER,already used (Sec.2.3)
+X006,CARCIA2006,10.1063/1.2221912,ALD Al2O3 25nm single on PEN,PEN,38?,85?,"{""n"":1,""d_in_nm"":25,""d_org_nm"":0}",null,<,null,predict_modeA,VERIFY_VALUE,Ca-test; extract exact WVTR+conditions from paper
+X007,DAMERON2008,10.1021/jp076866+,Al2O3/rapid-SiO2 nanolaminate,polymer,ambient?,?,"{""n"":null}",null,=,null,out_of_scope_check,NEEDS_PDF,different chemistry; boundary test of applicability domain

@@ -1,0 +1,189 @@
+% manuscript_v3.tex -- v2 + device-anchored M_crit floor (SI S4.4b).
+% Class note: written on standard `article`; for Elsevier submission switch to
+% \documentclass[preprint,3p]{elsarticle} and move Highlights to a separate file.
+\documentclass[11pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage{mathptmx}
+\usepackage{courier}
+\usepackage[a4paper,margin=2.4cm]{geometry}
+\usepackage{graphicx,amsmath,amssymb,booktabs,setspace}
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage[hidelinks]{hyperref}
+\graphicspath{{./}{../paper_figures/}{figures/}}
+\newcommand{\dorg}{d_{\mathrm{org}}}
+\newcommand{\din}{d_{\mathrm{in}}}
+\newcommand{\gmd}{g\,m$^{-2}$\,day$^{-1}$}
+\newcommand{\tdose}{t_{80}^{\mathrm{dose}}}
+\onehalfspacing
+
+\title{Geometry-first design of organic/inorganic multilayer thin-film encapsulation via a literature-calibrated digital twin: defect-mediated moisture physics, zero-refit validation, and confidence-qualified design rules}
+\author{Teo Yang\thanks{Independent Researcher. E-mail: teoyang0704@icloud.com. % journals typically require city+country here
+}}
+\date{}
+
+\begin{document}
+\maketitle
+
+% ----- Highlights (move to separate file for Elsevier) -----
+\noindent\textbf{Highlights.} Defect-mediated 1-D twin predicts multilayer WVTR to $+0.11$/$-0.01$ decade, zero refit. $\cdot$ Transient lag phase explains sub-detection-limit dyad data; consistent under censoring. $\cdot$ Exhaustive enumeration provides ground truth; NSGA-II verified for scale-up (GD 0.06). $\cdot$ Number-verified causal chains from exact Shapley/Sobol. $\cdot$ Robust rules: 22.5\,[21--26]--44\,[38--48]\,nm inorganic window; linear pair law; device-anchored $M_{\mathrm{crit}}$ floor.
+
+\begin{abstract}
+Multilayer thin-film encapsulation (TFE) gates the deployment of moisture-sensitive optoelectronics, including perovskite photovoltaics, yet its geometric design space---organic/inorganic thicknesses and dyad number---is sampled experimentally at only a few points. We report a lightweight digital twin that treats TFE design as a geometry problem: one-dimensional moisture transport in water-activity form with defect-mediated effective media (nucleation-driven pinhole closure, a particle floor, a cracking penalty, and lateral tortuous-path decoupling), coupled heat transfer, and an exact layer-lumped time lag; the transport core is verified against the analytic Fickian solution (0.45\% maximum error). Demonstrated end-to-end on the ALD-Al$_2$O$_3$/parylene-C literature system and calibrated only on a published single-layer thickness series plus the one-dyad point of the same source, the model predicts the two- and three-dyad WVTR with zero refitting to within $+0.11$ and $-0.01$ decades once a finite multi-day run is simulated (insensitive across 2.0--5.5 days; steady state provably excluded)---identifying the measurements as lag-phase-limited and remaining consistent with their below-detection (censored) status. The inferred pinhole density (8.5\,mm$^{-2}$) lies within independent Ca-test ranges. Exhaustive enumeration of 4{,}104 designs supplies a ground-truth six-objective Pareto front, against which a dependency-free NSGA-II---retained as verified machinery for higher-dimensional extensions---is benchmarked (generational distance 0.060); device temperature and transmittance vary by only 0.10\,K and 0.35 percentage points, collapsing the problem to four effective objectives. Exact interventional Shapley values and Sobol indices on the factorial grid are translated into causal chains carrying model-internal quantities; this number-embedding convention exposed and corrected an over-interpretation of the organic-thickness effect. Monte-Carlo uncertainty propagated through the entire calibration pipeline ($N{=}500$) yields confidence-qualified rules: an inorganic window of 22.5\,[21.0--26.0]--44.0\,[37.5--48.0]\,nm bounded by pinhole closure and cracking, and a pair law linear in all draws ($R^2\ge0.9998$). A first device-anchored calibration of the critical moisture dose ($M_{\mathrm{crit}}^{\mathrm{eff}}\ge0.97$\,g\,m$^{-2}$, from published encapsulated-device aging) implies moisture-limited lifetimes of $\ge$14 years for a single dyad even at the window edge ($\sim$26 at the 42\,nm optimum) and $\ge$99 years window-wide for $n\ge2$---moisture ceases to be the binding lifetime channel for dyad stacks---while all thresholds and rankings are unchanged. Code, database and provenance are released.
+\end{abstract}
+
+\noindent\textbf{Keywords:} thin-film encapsulation; water vapor transmission rate; atomic layer deposition; pinhole defects; multi-objective optimization; uncertainty quantification
+
+\section{Introduction}
+Perovskite photovoltaics now rival silicon in efficiency, but moisture sensitivity makes encapsulation a decisive step toward deployment; recent reviews stress the dual requirement of blocking water ingress and lead egress and the absence of standardized stability protocols \cite{dipta2024,acsmatau2022}. Among encapsulation routes, multilayer thin-film encapsulation---alternating dense inorganic barriers with organic interlayers---offers conformality, flexibility and a low thermal budget compatible with perovskite devices \cite{lee2018,choi2018,ramos2018,singh2020,wu2018}.
+
+Experiment has established the ingredients. Low-temperature ALD Al$_2$O$_3$ single layers protect devices but plateau in barrier performance \cite{choi2018,ramos2018,singh2020}, consistent with the ALD-barrier benchmarks of Carcia \emph{et al.} \cite{carcia2006}; organic/inorganic dyads improve WVTR by orders of magnitude, with a 3-dyad pV3D3/Al$_2$O$_3$ stack near $10^{-4}$\,\gmd{} at 38\,$^{\circ}$C/90\%\,RH \cite{lee2018} and a 3-dyad parylene-C/Al$_2$O$_3$ stack below instrument detection \cite{wu2018}; ALD nanolaminates extend the same logic within the inorganic phase \cite{dameron2008}; and residual particles introduced during deposition dominate the defect budget of practical barriers \cite{wu2018}---particles whose burial is a principal \emph{planarization} function of the organic layers \cite{coclite2012}. Yet these studies sample the geometry ($\dorg$, $\din$, $n$) at a handful of points each, and the recent multi-property figure of merit for TFE \cite{fom2025} confirms that barrier, optical and mechanical demands must be balanced while still collapsing them into a single scalar ranking of fabricated films.
+
+The transport physics needed to map this space is long established. Permeation through coated polymers is defect-dominated: single-pinhole models \cite{rossi1993} and defect--permeation correlations on coated PET \cite{dasilva2000} quantified it two decades ago; Graff \emph{et al.} showed that multilayer performance is governed by the \emph{lag time} of long lateral paths between offset defects rather than by equilibrium permeation \cite{graff2004}; ideal-laminate models reproduce time-dependent multilayer permeation \cite{kiese2019}; and moisture ingress is modeled at module scale \cite{kempe2006}. These tools, however, have served as isothermal, mostly steady-state analyses of fabricated structures---not as forward engines coupled to environmental dynamics, durability, lifetime and systematic design-space search.
+
+Machine learning has entered adjacent problems from another direction: random-forest/SHAP identification of stabilizing capping-layer chemistry \cite{hartono2020}, NSGA-II thickness optimization for optoelectronic objectives \cite{gaas2021,moulebhar2025}, and an AutoML processing pipeline described as an early perovskite digital-twin component \cite{automl2024}. None targets encapsulation geometry, couples a transport PDE to the search, treats reliability-centred objectives, or grounds attribution in mechanism---SHAP answers \emph{what mattered}, not \emph{why}.
+
+Here we assemble these validated pieces on a deliberately scoped claim: a \emph{barrier-stack} digital twin, demonstrated and validated end-to-end on the Al$_2$O$_3$/parylene-C system of Ref.~\cite{wu2018}, \emph{toward} perovskite encapsulation, whose device-specific transfer requirement---the critical moisture dose---we identify and, in \S\ref{sec:rules}, floor with published device data. Contributions: (i) a $\approx$1\,s-per-design defect-mediated 1-D moisture/heat twin whose geometry sensitivity derives from explicit closure, particle-floor, cracking and tortuous-path physics \cite{graff2004,rossi1993,dasilva2000}; (ii) a disclosed calibration/validation protocol---shape from a single-layer series, scale from one multilayer point, zero-refit prediction of the rest---including a transient, censoring-consistent re-reading of sub-detection measurements; (iii) a six-objective Pareto exploration verified against exhaustive enumeration, with exact Shapley/Sobol attribution rendered as causal chains carrying model-internal numbers; and (iv) design rules qualified by Monte-Carlo uncertainty propagated through the calibration pipeline itself. We claim no new material, transport law or algorithm; the contribution is the validated integration and the design map and rules it produces.
+
+\section{Model and methods}
+\subsection{Governing model}\label{sec:model}
+Moisture transport is solved in water-activity form, $S(x)\,\partial_t a=\partial_x\!\left(P(x,T)\,\partial_x a\right)$, with $a=C/S$ continuous across interfaces and equal to RH at the ambient boundary; sorption is activity-linear (Henry regime; revisited in \S\ref{sec:lim}). The device boundary is a perfect sink ($a{=}0$), matching Ca/MOCON geometry \cite{wu2018,rossi1993}; for barriers on devices, vapor accumulation beneath pinholes reduces the driving force \cite{rossi1993}, so the sink assumption is \emph{conservative}. Geometry sensitivity is carried by defect-mediated effective media: $P_{\mathrm{in}}^{\mathrm{eff}}=P_{\mathrm{lat}}(T)+f(d)\,P_{\mathrm{org}}(T)$ with
+\begin{equation}
+f(d)=f_0\,e^{-d/d_c}+f_{\mathrm{res}}+f_{c0}\!\left[\frac{d-d_{\mathrm{crit}}}{d_{\mathrm{crit}}}\right]_+^{2},
+\label{eq:fd}
+\end{equation}
+encoding nucleation-driven closure, a thickness-independent particle floor \cite{wu2018,dasilva2000}, and channel cracking; sandwiched organic layers carry $P_{\mathrm{org}}^{\mathrm{eff}}=P_{\mathrm{org}}/\tau^2$,
+\begin{equation}
+\tau^{2}=1+\frac{s^{2}\ln(s/r)}{2\pi \dorg^{2}},\qquad s=r\sqrt{\pi/f},
+\label{eq:tau}
+\end{equation}
+the 1-D reduction of the lateral detour between offset pinholes \cite{graff2004}, valid for $s\gg \dorg$ (here $s=343$--$459\,\mu$m against $\dorg\le1\,\mu$m; derivation SI\,S3). Heat conduction with solar source and convective/sky-radiative boundaries supplies $T(t)$ for Arrhenius coupling and the cycling amplitude of a Basquin fatigue proxy with $\sigma_c(d)=\sigma_{c0}\sqrt{d_{\mathrm{ref}}/d}$. The moisture-limited lifetime is a dose-threshold proxy,
+\begin{equation}
+\tdose=t_{\mathrm{lag}}+M_{\mathrm{crit}}\,R_{\mathrm{tot}}/\Delta a
+\end{equation}
+(written T80 in figures; it maps onto the photovoltaic T80 only after device-level dose calibration), with the exact layer-lumped Frisch lag \cite{frisch1957} $t_{\mathrm{lag}}=\sum_j C_j R_{L,j}R_{R,j}/R_{\mathrm{tot}}$ (reducing to $L^2/6D$; SI\,S1). The finite-volume, harmonic-conductance, implicit solver reproduces the analytic Fickian breakthrough flux to 0.45\% (Fig.~\ref{fig:twin}).
+
+\subsection{Literature database and provenance}
+All inputs live in a relational database with per-row sources, conditions, censoring flags ($=,<,\sim$), quality grades, and an enforced calibration/validation role split. Graphical data were digitized by automated marker detection with archived axis-calibration overlays (residuals $\le0.14$ decade; $\pm0.15$ decade per point).
+
+\subsection{Calibration and zero-refit validation}\label{sec:cal}
+Stage A fits the \emph{shape} of $f(d)$ to the single-layer Al$_2$O$_3$ series of Ref.~\cite{wu2018} (15--60\,nm, 38\,$^{\circ}$C/100\%\,RH; max residual 0.047 decade) under the a-posteriori-consistent assumption WVTR$_{\mathrm{bare}}\propto f(d)$ (bare-pinhole conductance $5.8\times10^{-6}$ of the open-vapor limit, i.e., access-limited \cite{rossi1993,dasilva2000}). The falling branch is constrained by one datum, leaving $d_c$ only \emph{upper-bounded} ($\le1.8$\,nm at the measurement-noise level, $f_0$ compensating; profile analysis SI\,S3)---closure completes below the first measured thickness---so no statement is extrapolated below 15\,nm. Stage B sets $f_{\mathrm{res}}$ from the one-dyad point of the same source (50\,nm Al$_2$O$_3$/500\,nm parylene-C dyads; the anchor thickness was corrected from an initial 30\,nm misreading upon full-text verification, with every downstream quantity regenerated---all shifts fall inside the reported CIs). The two- and three-dyad measurements are then \emph{predicted with zero refitting}---at steady state and as apparent WVTR after a finite multi-day run (the article specifies the coulometric detection limit, $5\times10^{-5}$\,g\,m$^{-2}$\,day$^{-1}$, but not the run duration; predictions are insensitive across 2.0--5.5-day durations, SI Fig.\,S3, and steady state is excluded regardless, SI\,S2); because both points lie below the stated steady-state detection limit they are treated as \emph{censored}, and validation is assessed as consistency under censoring plus descriptive decade errors. The article's separate 3-dyad result at 30\,nm (its Fig.~4, $<10^{-5}$, detection-limited) is likewise reproduced as a lag-phase reading (corrected-model steady state $3.5\times10^{-5}$\,g\,m$^{-2}$\,day$^{-1}$). The within-source split is disclosed; complementary checks are an independent cross-temperature point (50\,nm at 45\,$^{\circ}$C \cite{choi2018}), the collapsed-benefit regime of particle-rich films \cite{wu2018}, and the solubility consistency of \S\ref{sec:val}. Falsification targets: the 1--4-dyad WVTR \emph{and lag} series of Ref.~\cite{lee2018} (Fig.~2d) and any $\le$10\,nm ALD point.
+
+\subsection{Six-objective exploration}
+Design variables: $\dorg\in[100,1000]$\,nm (planarization/process bound; \S\ref{sec:lim}), $\din\in[15,120]$\,nm, $n\in\{1\ldots6\}$. Objectives: $\tdose$ at 38\,$^{\circ}$C/90\%\,RH; peak device temperature under a 15--42\,$^{\circ}$C diurnal cycle (1000\,W\,m$^{-2}$ peak; organic-capped stacks, hence fixed top emissivity); visible transmittance; a \emph{relative} cost proxy equal to measured deposition time on one toolset (ALD 0.098 vs.\ parylene 6\,nm\,min$^{-1}$ \cite{wu2018}); areal mass; and the fatigue proxy. The analytic evaluator equals the PDE solver at steady state to machine precision and is lag-exact, enabling exhaustive enumeration of 4{,}104 designs as ground truth. Because three variables permit enumeration, NSGA-II is \emph{not} claimed as a contribution; a dependency-free implementation (pop.\,80, 80 generations, SBX/polynomial) is benchmarked against the exhaustive front as verified machinery for higher-dimensional extensions where enumeration fails.
+
+\subsection{Exact explainability and number-verified chains}
+On the full-factorial grid, interventional Shapley values follow exactly from the $2^3$ coalition group means under the uniform grid measure (efficiency identity $\le10^{-11}$ of the response), and Sobol shares from exact functional ANOVA under the same measure---no surrogate or sampling approximation (elementary with three features; the point is exactness where available). Each high-importance driver$\to$objective pair is rendered as a causal chain whose arrows carry model-internal quantities ($f,s,\tau^2,R_{\mathrm{in}},R_{\mathrm{sand}},t_{\mathrm{lag}},\sigma_c/\sigma_a$) recomputed from probes, with a regression check of the claimed law.
+
+\subsection{Uncertainty quantification through the calibration pipeline}
+$N{=}500$ Monte-Carlo draws perturb measured inputs (single-layer series $\sigma{=}0.08$ decade; digitized anchor 0.10) and placeholder properties (parylene $D$ $\times/\div3$; $S$ within the validation-constrained 0.5--2$\times$; $E_a$ 30--50\,kJ\,mol$^{-1}$; pinhole radius $\times/\div2$; $M_{\mathrm{crit}}$ $\times/\div3$; $\sigma_{c0}$ $\times/\div1.5$; fatigue exponent 6--10; rationale SI Table\,S4), re-running the \emph{entire} Stage-A/B calibration per draw so calibration-induced correlations are preserved. Outputs separate cleanly: regime thresholds are measurement-noise-dominated, whereas absolute lifetime and durability feasibility are prior-dominated (\S\ref{sec:rules}).
+
+\section{Results and discussion}
+\subsection{Calibrated pinhole physics and a transient, censoring-consistent reading}\label{sec:val}
+The fitted $f(d)$ (Fig.~\ref{fig:val}a) reproduces the non-monotonic single-layer series---closure to a defect floor by $\sim$20\,nm, degradation beyond $\sim$50\,nm \cite{wu2018}---and implies 8.5 pinholes\,mm$^{-2}$ (343\,$\mu$m spacing), within Ca-test ranges \cite{dasilva2000,carcia2006}: a plausibility check independent of the fit. Zero-refit \emph{steady-state} prediction of the dyad series fails structurally: the measured improvement is geometric ($\div4.7$ per dyad, $R_3/R_1\approx22$ required), whereas the ladder obeys
+\begin{equation}
+\frac{R_{\mathrm{sand}}}{R_{\mathrm{in}}}=\frac{\dorg}{\din}\left[f+\frac{r^{2}\ln(s/r)}{2\dorg^{2}}\right],
+\end{equation}
+bounding $R_3/R_1\le7.8$ for all admissible parameters (SI\,S2)---the $+0.75$-decade 3-dyad overshoot is a model-class statement, not a tuning failure. Simulating the finite $\approx$72\,h run resolves it (Fig.~\ref{fig:val}b,c): apparent WVTR matches the 2-dyad point to $+0.11$ decade and the 3-dyad point to $-0.01$ decade (lag times 67 and 180\,h), remains below the stated instrument limit exactly as the censored data do, and stays within $\le0.4$ decade for durations of 2.0--5.5 days. This identifies the multilayer measurements as lag-phase-limited and reconciles apparent geometric scaling with series-resistance physics \cite{graff2004}. The parylene solubility required for joint agreement (0.5--2\,kg\,m$^{-3}$) coincides with the independent datasheet uptake ($<$0.1\,wt\%), a non-circular consistency loop. An ablation study (SI\,S7, Fig.\,S4) confirms each mechanism is pinned by a distinct data feature: removing any shape term breaks the five-point calibration ($\ge$0.43 vs.\ 0.047 decade max residual), removing the tortuous path or the lag breaks the zero-refit validation (max error 0.33 and 0.69 decade), and the uncalibrated model misses the anchor by 0.70 decade with incorrect $n$-scaling.
+
+\subsection{Pareto structure and effective dimensionality}
+Across 4{,}104 designs the peak device temperature spans 0.10\,K and transmittance 0.35 percentage points (organic-capped stacks: $\sim$mK conduction resistance against $\sim$10\,W\,m$^{-2}$K$^{-1}$ boundary losses; parylene $n{=}1.639$ index-matched to Al$_2$O$_3$ $n{=}1.65$). The six-objective problem collapses to four effective objectives (247 designs on the reduced true front)---itself a design insight: thermal and optical performance are not geometric degrees of freedom in this material pair. NSGA-II lands on the exhaustive front (GD 0.060 mean; the larger inverted GD, 0.168, reflects an 80-point archive against a 3{,}064-point six-objective front---cardinality, not convergence---and is moot in 3-D). Lifetime climbs the dyad ladder linearly ($+8{,}750$--$8{,}980$\,h per pair at baseline) with no in-model saturation; representative designs in Table~\ref{tab:reps}.
+
+\subsection{Number-verified causal chains, and a correction they forced}
+Exact Sobol shares (Fig.~\ref{fig:xai}a) rank $\din$ first for lifetime (0.551), then the $\din\times n$ interaction (0.184)---structural, since the dominant resistance is the product $n\,R_{\mathrm{in}}(\din)$, and resonant with the collapsed dyad benefit of particle-rich films \cite{wu2018}: poor barriers cannot be stacked into good ones. Durability loads entirely on $\din$ (1.00) through $\sigma_c\propto d^{-1/2}$, giving $N_f\propto d^{-m/2}$ (log--log slope $-3.6$ under the fatigue prior). The chain convention proved more than presentational: embedding internals into the $n{=}1$ organic-thickness chain exposed that $R_{\mathrm{top}}$ lies seven orders below $R_{\mathrm{in}}$, so $\dorg$ is inert for single dyads; our earlier reading of the optimizer's boundary choice was a tie-breaking artifact, corrected in the published chain (Figs.~\ref{fig:xai}c,~\ref{fig:chain}). The organic layer contributes to lifetime \emph{only} as the lateral decoupling medium of multilayers ($R_{\mathrm{sand}}\propto1/\dorg$ for $n\ge2$).
+
+\subsection{Robust design rules; a device-anchored floor for the dose threshold}\label{sec:rules}
+Propagating all inputs through re-calibration (Fig.~\ref{fig:uq}): \textbf{(G1)} $\din\ge22.5$\,[21.0--26.0]\,nm (closure); \textbf{(G2)} $<44.0$\,[37.5--48.0]\,nm (cracking onset; beyond it lifetime and durability collapse jointly)---both thresholds measurement-noise-dominated; \textbf{(G3)} within the window $N_f\propto d^{-m/2}$; a 10-year fatigue target needs $\din\le30$\,[16--49]\,nm and is unreachable at any thickness in 16\% of draws under the fatigue prior---an explicit quantification of the proxy's weakness; \textbf{(G4)} the pair law is linear in every draw ($R^2\ge0.9998$) with relative gain 0.5\,[0.4--0.5] of the 3-dyad lifetime per added dyad, while the absolute gain (8{,}458\,[1{,}404--50{,}128]\,h) is $M_{\mathrm{crit}}$-prior-dominated; \textbf{(G5, transport-only, conditional)} do not exceed the planarization-required organic thickness ($R_{\mathrm{sand}}\propto1/\dorg$ for $n\ge2$; planarization unmodeled \cite{coclite2012}); \textbf{(G6)} thermal/optical objectives delegated to materials selection; \textbf{(G7)} thresholds and rankings invariant under $M_{\mathrm{crit}}\times/\div3$.
+
+The remaining absolute-scale gap is now floored by a first device-anchored calibration (SI\,S4.4b). Transferring Ref.~\cite{choi2018}'s own measured barrier WVTR to its shelf conditions (vapor-access mechanism; Arrhenius alternative within 15\%) and integrating over the reported 7{,}500\,h with $<$4\% PCE loss yields, within the same sink model, $M_{\mathrm{crit}}^{\mathrm{eff}}\ge0.97$\,[0.90--1.04]\,g\,m$^{-2}$ under monotone dose--damage only (a linear reading gives $\ge4.9$). Consequently every design inside the G1--G2 window exceeds $\sim$25 years of moisture-limited life even at a single dyad (Table~\ref{tab:reps}, right column): \emph{moisture ceases to be the binding lifetime channel for dyad stacks}, shifting the design problem to durability, cost and weight, while all thresholds and rankings---per G7---are unchanged.
+
+\subsection{Limitations and transferability}\label{sec:lim}
+(i) The $\dorg$ optimum sits on the imposed 100\,nm bound because pinhole replication/planarization through thin organics is unmodeled \cite{coclite2012}. (ii) $\tdose$ is a dose proxy; the device-anchored bound of \S\ref{sec:rules} is a same-model floor whose transfer assumes the sink bias is non-increasing with barrier resistance (SI\,S4.4b); a two-sided estimate requires aging beyond threshold. (iii) The cracking onset was calibrated under flexible-substrate handling strain \cite{wu2018}; rigid deployments shift $d_{\mathrm{crit}}$ upward. (iv) Durability is a Basquin proxy pending film-mechanics primaries. (v) Calibration and quantitative validation share one source, mitigated by cross-regime prediction, the cross-temperature check \cite{choi2018}, solubility consistency, and named falsification targets \cite{lee2018}. (vi) Lifetime ranking is evaluated at 38\,$^{\circ}$C/90\%\,RH; Arrhenius extrapolation rescales absolute values without reordering geometry. (vii) Activity-linear sorption may break near saturation. (viii) The cost proxy is relative deposition time on one toolset. (ix) The device-side sink is conservative \cite{rossi1993}.
+
+\section{Conclusions}
+Treating thin-film encapsulation as a geometry problem, a literature-calibrated defect-mediated digital twin---verified against analytic transport; validated zero-refit against multilayer experiments through a transient, censoring-consistent re-reading of sub-detection data; explored to an exhaustively verified Pareto front; explained through exact, number-verified causal chains that corrected our own over-interpretation; and stress-tested by calibration-through uncertainty propagation---yields confidence-qualified design rules: a 22.5--44\,nm inorganic window, a saturation-free linear pair law, and a device-anchored dose floor under which moisture ceases to be the binding lifetime channel for dyad stacks. The framework is lightweight and released with database and provenance; its consequential open items---a two-sided perovskite dose threshold and film-mechanics primaries---slot directly into the released pipeline.
+
+\section*{Declarations}
+Data and code, with per-row provenance, censoring and quality flags and digitization overlays, are available at \url{https://github.com/teoyang0704-wq/Perovskite-TFE-DigitalTwin}; an interactive deployment of the calibrated twin (design sliders, Pareto map, and both $M_{\mathrm{crit}}$ tiers) is available at \url{https://tfe-twin.streamlit.app}. \textbf{AI-use disclosure:} portions of code, analysis and text were developed with a large-language-model assistant (Anthropic Claude); all methods, results and claims were verified by the author, who takes full responsibility. CRediT / competing interests / funding: [to complete].
+
+% ================= FIGURES =================
+\begin{figure}[p]\centering\includegraphics[width=.95\textwidth]{Fig1_overview.pdf}
+\caption{Framework overview: literature database with provenance $\to$ defect-mediated 1-D moisture/heat digital twin $\to$ calibration and zero-refit validation $\to$ six-objective Pareto exploration with exhaustive ground truth $\to$ exact Shapley/Sobol translated into number-verified causal chains $\to$ robust guidelines from calibration-through uncertainty quantification. Right column: the verified quantity carried by each step.}\label{fig:overview}\end{figure}
+
+\begin{figure}[p]\centering\includegraphics[width=.98\textwidth]{Fig2_twin_structure.pdf}
+\caption{Digital-twin structure. (a) Stack cross-section with laterally offset pinholes and the lateral (tortuous) transport path; environmental forcing (solar flux, diurnal $T$/RH, ambient water activity). (b) Governing model: activity-form diffusion, defect-mediated effective media $f(d)$ and $\tau^2$, heat equation, exact layer-lumped Frisch lag, dose-based lifetime, and numerics (0.45\% verification).}\label{fig:twin}\end{figure}
+
+\begin{figure}[p]\centering\includegraphics[width=\textwidth]{Fig3_validation.pdf}
+\caption{Calibration and zero-refit validation against Ref.~\cite{wu2018} (38\,$^{\circ}$C/100\%\,RH). (a) Single-layer Al$_2$O$_3$ thickness series and fitted $f(d)$ (closure $+$ cracking). (b) Dyad series: measurement, steady-state prediction, and apparent WVTR after a finite multi-day run (duration unstated in the source; predictions insensitive across 2.0--5.5 days, SI Fig.\,S3); star: scale anchor; the 2- and 3-dyad points are censored (below the stated $5\times10^{-5}$ limit). (c) Transient apparent WVTR with lag times; circles: measurements placed at 72\,h; dotted: stated instrument limit.}\label{fig:val}\end{figure}
+
+\begin{figure}[p]\centering\includegraphics[width=\textwidth]{Fig4_pareto.pdf}
+\caption{Six-objective Pareto exploration (4{,}104 designs). (a) Lifetime--cost front colored by dyad number; crosses: NSGA-II (GD${}=0.06$). (b) Lifetime--durability conflict mediated by $\din$. (c) Pareto set in parallel coordinates.}\label{fig:pareto}\end{figure}
+
+\begin{figure}[p]\centering\includegraphics[width=\textwidth]{Fig5_shapley_sobol.pdf}
+\caption{Exact explainability. (a) Sobol variance shares. (b) Exact Shapley dependence of lifetime on $\din$ with detected regime boundaries (22.5/44\,nm). (c) The $\dorg$ effect activates only for $n\ge2$ (number-verified; see Fig.~\ref{fig:chain}).}\label{fig:xai}\end{figure}
+
+\begin{figure}[p]\centering\includegraphics[width=\textwidth]{Fig6_causal_chain.pdf}
+\caption{Number-verified causal chains. (a) Pair-count and inorganic-thickness chains with embedded model internals and regression checks. (b) Decomposition of $R_{\mathrm{tot}}$ versus dyad number.}\label{fig:chain}\end{figure}
+
+\begin{figure}[p]\centering\includegraphics[width=\textwidth]{Fig7_guidelines.pdf}
+\caption{Robust guidelines from calibration-through Monte-Carlo ($N{=}500$). (a) Lifetime credible band with threshold CIs. (b) Pair law across all draws. (c) Robust-Pareto membership map with representative designs and thresholds.}\label{fig:uq}\end{figure}
+
+% ================= TABLES =================
+\begin{table}[p]\centering\caption{Calibrated quantities (details and priors: SI Tables S1--S4).}\label{tab:cal}
+\begin{tabular}{lll}\toprule
+Quantity & Value & Provenance \\\midrule
+$f(50\,\mathrm{nm})$ & $6.67\times10^{-8}$ (8.5\,mm$^{-2}$; 343\,$\mu$m) & Stage B anchor (50\,nm dyads) \\
+Closure threshold & 22.5\,[21.0--26.0]\,nm & UQ ($N{=}500$) \\
+Cracking onset $d_{\mathrm{crit}}$ & 44.0\,[37.5--48.0]\,nm & Stage A $+$ UQ \\
+$d_c$ (closure length) & $\le1.8$\,nm (upper bound) & profile analysis (SI\,S3) \\
+Identified invariant & $f(15)/f_{\mathrm{res}}=9.1$ & SI\,S3 \\
+Pair law (relative) & 0.5\,[0.4--0.5] per dyad; $R^2\ge0.9998$ & UQ \\
+$M_{\mathrm{crit}}^{\mathrm{eff}}$ & $\ge0.97$\,[0.90--1.04]\,g\,m$^{-2}$ (Tier-1) & device-anchored (SI\,S4.4b) \\\bottomrule
+\end{tabular}\end{table}
+
+\begin{table}[p]\centering\caption{Representative Pareto designs (baseline parameters). Right column: moisture-limited lifetime under the device-anchored Tier-1 floor.}\label{tab:reps}
+\begin{tabular}{lccccc}\toprule
+Design & $\tdose$ [h]$^{\,a}$ & durability [yr] & cost [min] & mass [g/m$^2$] & floor lifetime \\\midrule
+MAX $6\times(42/100)$ & 46{,}857 & 1.7 & 2{,}671 & 1.53 & $\sim$519\,yr \\
+KNEE $6\times(18/100)$ & 25{,}399 & 50.2 & 1{,}202 & 1.10 & $\sim$281\,yr \\
+ECONOMY $3\times(21/100)$ & 15{,}983 & 27.1 & 693 & 0.58 & $\sim$177\,yr \\
+single dyad $1\times(42/100)$ & 2{,}356 & --- & 445 & --- & $\sim$26\,yr \\\bottomrule
+\end{tabular}\\[2pt]{\footnotesize $^a$At the superseded placeholder $M_{\mathrm{crit}}{=}0.01$\,g\,m$^{-2}$; retained for cross-figure consistency.}\end{table}
+
+\begin{table}[p]\centering\caption{Design rules with confidence grades (full statements and validity conditions: SI Table S2).}\label{tab:rules}
+\begin{tabular}{clc}\toprule
+Rule & Statement (abridged) & Confidence \\\midrule
+G1 & $\din\ge22.5$\,[21.0--26.0]\,nm (pinhole closure) & HIGH \\
+G2 & $\din<44.0$\,[37.5--48.0]\,nm (cracking; beyond: dominated) & HIGH \\
+G3 & $N_f\propto d^{-m/2}$; 10-yr needs $\din\le30$\,[16--49]; 16\% infeasible & LOW--MED \\
+G4 & pair law linear (all draws); rel.\ gain 0.5\,[0.4--0.5]/dyad & HIGH/MED \\
+G5 & organic: do not exceed planarization-required thickness & MED \\
+G6 & thermal/optical: not geometric degrees of freedom here & HIGH \\
+G7 & thresholds/rankings invariant to $M_{\mathrm{crit}}$; floored at 0.97\,g\,m$^{-2}$ & HIGH \\\bottomrule
+\end{tabular}\end{table}
+
+% ================= REFERENCES =================
+\begin{thebibliography}{22}\footnotesize
+\bibitem{dipta2024} S.~S. Dipta, M.~A. Rahim, A. Uddin, Appl. Phys. Rev. 11 (2024) 021301.
+\bibitem{acsmatau2022} Encapsulation and stability testing of perovskite solar cells for real-life applications, ACS Mater. Au (2022). % [VERIFY authors/pages]
+\bibitem{lee2018} Lee et al., Adv. Energy Mater. (2017/18). % [VERIFY volume/pages]
+\bibitem{choi2018} Choi et al., Sol. Energy Mater. Sol. Cells (2018). % [VERIFY]
+\bibitem{ramos2018} Ramos et al., Sustain. Energy Fuels 2 (2018). % [VERIFY pages]
+\bibitem{singh2020} Singh et al., Sol. Energy Mater. Sol. Cells 205 (2020) 110289. % [VERIFY]
+\bibitem{wu2018} J. Wu, F. Fei, C. Wei, X. Chen, S. Nie, D. Zhang, W. Su, Z. Cui, RSC Adv. 8 (2018) 5721--5727.
+\bibitem{graff2004} G.~L. Graff, R.~E. Williford, P.~E. Burrows, J. Appl. Phys. 96 (2004) 1840--1849.
+\bibitem{kiese2019} Kiese et al., Thin Solid Films (2019). % [VERIFY]
+\bibitem{kempe2006} M.~D. Kempe, Sol. Energy Mater. Sol. Cells 90 (2006) 2720--2738.
+\bibitem{hartono2020} N.~T.~P. Hartono et al., Nat. Commun. 11 (2020) 4172.
+\bibitem{gaas2021} Boosting photoelectric performance of thin-film GaAs solar cells based on multi-objective optimization, Sol. Energy (2021). % [VERIFY]
+\bibitem{moulebhar2025} Moulebhar et al., Phys. Status Solidi A (2025) 2400654.
+\bibitem{automl2024} One-shot AutoML for perovskite solar cells toward digital twins, J. Clean. Prod. (2024). % [VERIFY]
+\bibitem{fom2025} Figure of merit for evaluating thin-film encapsulation (2025). % [VERIFY journal/authors]
+\bibitem{pvdt2024} Digital-twin-empowered PV power prediction, J. Mod. Power Syst. Clean Energy 12 (2024) 1472. % [VERIFY]
+\bibitem{rossi1993} G. Rossi, M. Nulman, J. Appl. Phys. 74 (1993). % [VERIFY volume/pages]
+\bibitem{dasilva2000} A.~S. da Silva Sobrinho, G. Czeremuszkin, M. Latr\`eche, M.~R. Wertheimer, J. Vac. Sci. Technol. A 18 (2000). % [pages VERIFY]
+\bibitem{carcia2006} P.~F. Carcia, R.~S. McLean, M.~H. Reilly, M.~D. Groner, S.~M. George, Appl. Phys. Lett. 89 (2006) 031915.
+\bibitem{dameron2008} A.~A. Dameron et al., J. Phys. Chem. C 112 (2008) 4573--4580.
+\bibitem{coclite2012} A.~M. Coclite, K.~K. Gleason, J. Appl. Phys. 111 (2012) 073516.
+\bibitem{frisch1957} H.~L. Frisch, J. Phys. Chem. 61 (1957). % [VERIFY pages]
+\end{thebibliography}
+\end{document}

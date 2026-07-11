@@ -1,0 +1,16 @@
+source_id,first_author,year,title_short,journal,doi,verified,used_for,notes
+GRAFF2004,Graff,2004,Mechanisms of vapor permeation through multilayer barrier films,J. Appl. Phys.,10.1063/1.1768610,verified,model_basis;context,lag-time vs equilibrium; tortuous path; PET multilayer <1e-5 @25C/40RH
+HARTONO2020,Hartono,2020,ML capping layers to suppress perovskite degradation,Nat. Commun.,10.1038/s41467-020-17945-4,verified,context,methodological contrast (RF+SHAP; composition not geometry)
+DIPTA2024,Dipta,2024,Encapsulating PSC for stability and lead toxicity (review),Appl. Phys. Rev.,10.1063/5.0197154,verified,context,protocol standardization argument
+WU2018,Wu,2018,Efficient multi-barrier TFE of OLED using alternating Al2O3 and parylene C,RSC Adv. 8 5721-5727,10.1039/C8RA00023A,verified,calibration,OPEN ACCESS CC BY-NC; full text extracted 2026-07-06; ALD 60C TMA/H2O 0.1nm/cycle; MOCON AquatranII 38C/100RH limit 5e-5; Table1 thickness series; particles=key killer
+WU2018V,Wu,2018,same paper - multilayer rows for zero-refit prediction test,RSC Adv. 8 5721-5727,10.1039/C8RA00023A,verified,validation,ROLE NOTE: calibration = Table1 shape + Fig3 dyad-1 absolute scale; dyad-2 and dyad-3 are zero-refit predictions (disclosed split)
+CHOI2018,Choi,2018,ALD Al2O3 encapsulation of PSC,Sol. Energy Mater. Sol. Cells,,needs_check,validation,S0927024818304239; 50nm(95C ALD) WVTR 1.84e-2 @45C/100RH; cross-temperature+cross-process check; 7500h RT/50RH <4pct PCE drop
+LEE2018,Lee,2018,Low-temperature TFE for PSC (iCVD pV3D3 / ALD Al2O3 dyads),Adv. Energy Mater.,,needs_check,validation_external_optional,PAYWALLED - now OPTIONAL; would add independent-source + pV3D3 system + lag-time data; Fig.2d DIGITIZE if obtained via author request
+KIESE2019,Kiese,2019,Time-dependent WV permeation multilayer: empirical vs theoretical,Thin Solid Films,,needs_check,validation,S004060901930001X; ideal laminate + analytic lag
+KEMPE2006,Kempe,2006,Modeling of rates of moisture ingress into photovoltaic modules,Sol. Energy Mater. Sol. Cells 90 2720-2738,10.1016/j.solmat.2006.04.002,verified,model_basis,classic PV moisture-ingress modeling; found via WU2018 ref25; READ - add to lit review section B
+ACSMATAU2022,unknown,2022,Encapsulation and stability testing of PSC (review),ACS Materials Au,10.1021/acsmaterialsau.1c00045,needs_check,context,>800h damp heat and 1700h outdoor case; ~200h accelerated screening idea
+FOM2025,unknown,2025,Figure of merit for TFE (mech+barrier+optical),Thin Solid Films(?),,needs_check,context,S0921510725008451; CLOSEST multi-property eval; MUST READ before submission
+AUTOML2024,unknown,2024,One-shot AutoML for PSC toward digital twins,J. Cleaner Prod.,,needs_check,context,S0959652624040095; CLOSEST DT label; MUST READ before submission
+RAMOS2018,Ramos,2018,Low-T (60C) ALD-Al2O3 PSC encapsulation,Sustain. Energy Fuels,,needs_check,context,process temperature constraint evidence
+SINGH2020,Singh,2020,ALD Al2O3 on PSC: growth mechanism and stability,Sol. Energy Mater. Sol. Cells,,needs_check,context,S092702481930618X
+ENGINE_V0,this_project,2026,Physics engine v1.0 default assumptions,internal,,verified,placeholder,all values flagged C; to be replaced by primary literature

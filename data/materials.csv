@@ -1,0 +1,9 @@
+material_id,name,class,deposition_process,chemical_formula,typ_thick_min_nm,typ_thick_max_nm,process_temp_max_C,notes
+AL2O3_ALD,ALD aluminum oxide,inorganic_barrier,ALD,Al2O3,10,200,95,PSC-compatible low-T thermal ALD (CHOI2018; RAMOS2018 60C)
+SINX_PECVD,PECVD silicon nitride,inorganic_barrier,PECVD,SiNx,50,1000,85,FOM2025 material system; alt inorganic for generality check
+PV3D3_ICVD,iCVD pV3D3 polymer,organic_interlayer,iCVD,pV3D3,50,1000,40,LEE2018 dyad partner; benign 30-40C process
+PARYLENE_C_CVD,Parylene C,organic_interlayer,CVD,parylene-C,100,2000,25,OLED2022 dyad partner; RT deposition
+ACRYLATE_GEN,Generic acrylate interlayer,organic_interlayer,flash_evap,acrylate,100,1000,60,Barix/Vitex-type analog; engine v0 organic
+PET_SUB,PET film substrate,substrate,extruded,PET,50000,175000,,flexible substrate for barrier tests and module
+PSC_DEVICE,Perovskite device stack (lumped),device,solution,MAPbI3-based stack,300,1000,,lumped sink for moisture; heat source in thermal model
+AL2O3_ALD_POOR,ALD aluminum oxide (poor - high base pressure),inorganic_barrier,ALD,Al2O3,10,200,95,WU2018 variant deposited at 9e-1 torr base pressure; Ra 0.5nm; particle-rich; f-bracket for defect model

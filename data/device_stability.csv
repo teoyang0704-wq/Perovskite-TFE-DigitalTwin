@@ -1,0 +1,4 @@
+dev_id,encapsulation_stack,protocol,T_C,RH_pct,illumination,metric,value,unit,time_h,role,quality,source_id,notes
+DS001,PSC_DEVICE/AL2O3_ALD(50nm),shelf_RT,25,50,dark_intermittent,pce_retention,96,pct,7500,calibration_Mcrit,B,CHOI2018,<4pct PCE drop over 7500h; use with BM001 to back out M_crit
+DS002,PSC + good encapsulation (unspecified),damp_heat_85_85,85,85,,pass_duration,800,h,800,context,B,ACSMATAU2022,review-cited case: >800h damp heat and >1700h outdoor
+DS003,OLED/[AL2O3_ALD(30nm)/PARYLENE_C_CVD(500nm)]x3,constant_current_LT_1000cd,25,,electrical,lifetime,190,h,190,context,A,WU2018,vs 10h bare OLED (19x); OLED not PSC - efficacy demo only

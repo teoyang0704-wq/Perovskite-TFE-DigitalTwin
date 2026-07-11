@@ -1,0 +1,13 @@
+prop_id,material_id,property,value,unit,T_C,RH_pct,wavelength_nm,film_thickness_nm,censor,quality,source_id,method,uncertainty_type,value_min,value_max,fig_or_page,notes
+P0001,ACRYLATE_GEN,water_diffusivity,1.0e-12,m2/s,25,,,,~,C,ENGINE_V0,assumed,order_of_magnitude,1e-13,1e-11,,as-specified by project owner 1e-8 cm2/s; REPLACE with primary sorption data
+P0002,ACRYLATE_GEN,water_solubility,10,kg/m3,25,,,,~,C,ENGINE_V0,assumed,range,3,30,,typical hydrophilic acrylate; REPLACE
+P0003,ACRYLATE_GEN,diffusion_Ea,30000,J/mol,,,,,~,C,ENGINE_V0,assumed,range,20000,50000,,typical polymer water diffusion Ea
+P0004,AL2O3_ALD,critical_cracking_thickness,120,nm,25,,,,~,C,ENGINE_V0,assumed,range,80,300,,channel cracking on polymer substrate; find mechanics primary (collection priority 4)
+P0005,AL2O3_ALD,thermal_conductivity,1.8,W/(m*K),25,,,,~,C,ENGINE_V0,assumed,range,1.0,3.0,,thin-film ALD alumina < bulk; verify
+P0006,AL2O3_ALD,youngs_modulus,1.5e11,Pa,25,,,,~,C,ENGINE_V0,assumed,range,1.2e11,1.9e11,,thin-film value; verify nanoindentation lit
+P0007,PARYLENE_C_CVD,density,1289,kg/m3,25,,,,=,C,ENGINE_V0,handbook,none,,,,typical parylene-C handbook value; verify
+P0008,PV3D3_ICVD,youngs_modulus,3.0e9,Pa,25,,,,~,C,ENGINE_V0,assumed,range,1e9,6e9,,crosslinked siloxane polymer typical
+P0009,PARYLENE_C_CVD,youngs_modulus,4.0e9,Pa,25,,,,~,B,WU2018,stated,none,,,Experimental section,paper states 'about 4 GPa'; low modulus for stress relaxation
+P0010,AL2O3_ALD,deposition_rate,0.098,nm/min,60,,,,=,A,WU2018,stated,none,,,Experimental section,0.1 nm/cycle; 500 cycles=8.5h for 50nm; grounds cost proxy (ALD ~60x slower per nm than parylene CVD)
+P0011,PARYLENE_C_CVD,deposition_rate,6.0,nm/min,25,,,,=,A,WU2018,stated,none,,,Experimental section,0.1 nm/s at RT; QCM monitored
+P0012,AL2O3_ALD,pinhole_areal_density,,1/mm2,,,,50,~,B,WU2018,AFM,,,,Fig.2,qualitative: base pressure 9e-1 vs 2e-1 torr changes Ra 0.5->0.3nm and multilayer WVTR by 2-4 orders; particles = dominant defect (supports f_res concept)
