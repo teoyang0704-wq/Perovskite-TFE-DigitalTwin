@@ -1,0 +1,9 @@
+cff-version: 1.2.0
+title: "Perovskite-TFE-DigitalTwin: physics-informed digital twin for multilayer thin-film encapsulation geometry design"
+authors:
+  - family-names: "Yang"
+    given-names: "Teo"
+version: 0.9.3
+date-released: 2026-07-10
+license: MIT
+repository-code: "https://github.com/teoyang0704-wq/Perovskite-TFE-DigitalTwin"
