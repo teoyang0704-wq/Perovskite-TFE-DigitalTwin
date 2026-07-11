@@ -1,6 +1,2 @@
 __pycache__/
 *.pyc
-*.aux
-*.fls
-*.fdb_latexmk
-*.log

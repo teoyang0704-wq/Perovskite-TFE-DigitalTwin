@@ -1,16 +1,10 @@
-param_id,engine_symbol,material_id,chosen_value,unit,derivation,source_ids,prop_ids,justification,sensitivity,status
-E001,D_ref,ACRYLATE_GEN,1.0e-12,m2/s,assumed,ENGINE_V0,P0001,project-owner spec; typical acrylate order; parylene-C likely lower (hydrophobic) - split material later,H,placeholder
-E002,Ea_D,ACRYLATE_GEN,30000,J/mol,assumed,ENGINE_V0,P0003,typical polymer,M,placeholder
-E003,S,ACRYLATE_GEN,10,kg/m3,assumed,ENGINE_V0,P0002,typical hydrophilic acrylate; parylene-C lower,H,placeholder
-E004,f0,AL2O3_ALD,0.372,-,fitted,WU2018,,RIDGE: only f(15nm)=9.3x f_res constrained; f0/d_close not separately identifiable -> design bound d_inorg>=15nm | CORRECTED 2026-07-10: dyad anchor thickness 50nm per Wu full text,H,calibrated
-E005,d_close_nm,AL2O3_ALD,1.07,nm,fitted,WU2018,,ridge with f0 (see E004),H,calibrated
-E006,f_res,AL2O3_ALD,3.72e-8,-,fitted,WU2018,P0012,"= f_res; anchor f(50nm)=6.67e-8 -> 8.49 pinholes/mm2, 343um (Ca-test range); CORRECTED 2026-07-10 (Fig.3 series uses 50nm 'primal thickness', not 30nm)",H,calibrated
-E007,d_crit_nm,AL2O3_ALD,43.9,nm,fitted,WU2018,P0004,STRAINED flexible-PET regime (handling); unstrained/rigid d_crit larger - regime flag needed for PSC transfer,H,calibrated
-E008,r_pinhole,AL2O3_ALD,5e-8,m,assumed,ENGINE_V0,,effective pinhole radius for spacing conversion,M,placeholder
-E009,M_crit,PSC_DEVICE,0.01,g/m2,back_calculated,CHOI2018,,FIGURE-BASELINE value retained so Figs.4-7/Tables reproduce bit-for-bit; the device-anchored floor lives in E015; paper Table 2 footnote explains the two-tier reporting,H,figure_baseline
-E010,k,AL2O3_ALD,1.8,W/(m*K),assumed,ENGINE_V0,P0005,thin-film value,L,placeholder
-E011,cost_per_nm_ratio,AL2O3_ALD,61,-,direct,WU2018,P0010;P0011,deposition-time ratio ALD vs parylene per nm (0.098 vs 6 nm/min) - replaces arbitrary 0.5/0.1 cost weights with measured proxy,M,calibrated
-E012,D_ref,PARYLENE_C_CVD,5.0e-13,m2/s,assumed,ENGINE_V0,,datasheet-typical permeability split; D insensitive in validation (+-0.03 dec at x3),M,placeholder
-E013,S,PARYLENE_C_CVD,1.5,kg/m3,assumed,ENGINE_V0,,~0.1wt% water uptake (datasheet); SENSITIVE lever for lag validation (x3 -> -1.9 dec); constrained to 0.5-2 by joint dyad fit,H,calibrated_indirect
-E014,t_test_h,global,72,h,assumed,,,main text contains NO duration statement (full-text check 2026-07-10); user-reported 72h source unlocated - manuscript reframed to duration-insensitivity window; ESI (CLSM images only) unlikely to contain it,H,assumed
-E015,M_crit_floor,PSC_DEVICE,0.97,g/m2,back_calculated,CHOI2018,,device-anchored Tier-1 floor (monotone damage; 0.90-1.04 across transfer variants); Tier-2 linear >=4.9; assumptions SI S4.4b; multiply dose term of any lifetime by E015/E009 to apply,H,calibrated_lower_bound
+engine_symbol,material_id,chosen_value,note
+f0,AL2O3_ALD,0.372,runtime copy; corrected 2026-07-10 (50nm anchor); full provenance DB in release bundle
+d_close_nm,AL2O3_ALD,1.07,
+f_res,AL2O3_ALD,3.72e-8,anchor f(50nm)=6.67e-8 -> 8.5 pinholes/mm2 (343um)
+d_crit_nm,AL2O3_ALD,43.9,
+r_pinhole,AL2O3_ALD,5e-8,
+D_ref,PARYLENE_C_CVD,5.0e-13,
+S,PARYLENE_C_CVD,1.5,
+M_crit,PSC_DEVICE,0.01,figure baseline; device-anchored floor is row below
+M_crit_floor,PSC_DEVICE,0.97,Tier-1 device-anchored floor; app applies via x97 toggle
