@@ -52,7 +52,7 @@ Each uncertain input, its distribution and rationale are listed in Table S4. The
 
 
 ### S4.4b Device-anchored effective floor for M_crit (added after v2 review)
-Using the encapsulated-device shelf data of Ref. [4] (<4% PCE loss after 7,500 h at 25 degC/50% RH) together with the same film's measured barrier WVTR (1.84e-2 g m-2 day-1 at 45 degC/100% RH), transferred to shelf conditions by the vapor-access mechanism of S4.1 (factor 0.156; Arrhenius-40 kJ/mol alternative within 15%), the sink model accumulates a dose of 0.90-1.04 g m-2 over the test. Since the device remained within 4% of its initial PCE, the *same-model* effective threshold obeys **M_crit^eff >= 0.97 g m-2 (Tier-1: monotone dose-damage only)**; a linear dose-damage reading gives >= 4.9 g m-2 (Tier-2). Assumptions: (a) effective calibration within the identical sink model, transferable if the sink bias is non-increasing with barrier resistance; (b) T/RH transfer by the vapor mechanism; (c) Tier-1 requires only monotonicity; (d) the film's own measured WVTR is used, so film-specific f cancels; (e) conformal coating suppresses edge ingress. Consequence: the dose term of every lifetime scales by >=97x; within the G1-G2 window even a single dyad exceeds ~25 yr of moisture-limited life, so moisture ceases to be the binding lifetime channel for dyad designs, while thresholds and rankings are unchanged (main G7).
+Using the encapsulated-device shelf data of Ref. [4] (<4% PCE loss after 7,500 h at 25 degC/50% RH) together with the same film's measured barrier WVTR (1.84e-2 g m-2 day-1 at 45 degC/100% RH), transferred to shelf conditions by the vapor-access mechanism of S4.1 (factor 0.156; Arrhenius-40 kJ/mol alternative within 15%), the sink model accumulates a dose of 0.90-1.04 g m-2 over the test. Since the device remained within 4% of its initial PCE, the *same-model* effective threshold obeys **M_crit^eff >= 0.97 g m-2 (Tier-1: monotone dose-damage only)**; a linear dose-damage reading gives >= 4.9 g m-2 (Tier-2). Assumptions: (a) effective calibration within the identical sink model, transferable if the sink bias is non-increasing with barrier resistance; (b) T/RH transfer by the vapor mechanism; (c) Tier-1 requires only monotonicity; (d) the film's own measured WVTR is used, so film-specific f cancels; (e) conformal coating suppresses edge ingress. Source-internal note: the abstract of Ref. [4] states 45 degC/100%RH while its highlights state 45 degC/85%RH; we adopt the 100% reading, which is the conservative (lower) floor -- the 85% reading would raise it to 1.14 g/m2. Consequence: the dose term of every lifetime scales by >=97x; within the G1-G2 window even a single dyad exceeds ~25 yr of moisture-limited life, so moisture ceases to be the binding lifetime channel for dyad designs, while thresholds and rankings are unchanged (main G7).
 
 ### S4.3 Test-duration sensitivity (Fig. S3)
 Sweeping the assumed instrument run time: prediction errors (decades) for the {2,3}-dyad points are {−0.37, −1.34} at 1 d, {−0.03, −0.39} at 2 d, {+0.11, −0.01} at 3 d, {+0.22, +0.35} at 5 d, {+0.26, +0.51} at 7 d. Both points remain within ≤0.4 decade for assumed durations of **2.0–5.5 days**, spanning typical multi-day coulometric runs (the source states the 5×10⁻⁵ detection limit but not the duration); steady state (t→∞) fails per §S2 regardless.
@@ -120,3 +120,33 @@ The structure is diagnostic: the three **shape terms are each pinned by a distin
 ## S8. Additional sensitivity views (response surface, interactions)
 
 Fig. S4b maps the full response surface T80(d_in, n) at d_org = 100 nm from the exhaustive grid, visualizing the G1–G2 window as a ridge; Fig. S4c overlays T80(d_in) for n = 1…6, showing the multiplicative amplification that exact ANOVA quantifies as the d_in×n interaction (S = 0.184, Table S1). These views are projections of the same exhaustive dataset (no additional sampling machinery required).
+
+## S4.5 Cross-laboratory probes (mode A) and named falsification targets
+### (a) Lee et al. — full mode-B validation (primary data obtained 2026-07-10)
+Primary source (AEM 8, 1701928, Figs. 2d/5a; full text): 60 °C ALD Al2O3 21.5 nm (200 cycles × 1.10 Å), pV3D3 first layer 800 nm then 100 nm; Ca-test at 38 °C/90 %RH reporting the **post-lag steady slope** (lag = x-intercept), so steady-state comparison is methodologically exact. Ladder: 3.0×10⁻³ / 6.6×10⁻⁴ / 5.4×10⁻⁴ / 5.3×10⁻⁴ g m⁻² day⁻¹ (n = 1–4); lag > 400 h at n = 4.
+
+**Protocol (mode B, `predict_external.py`):** re-anchor one scale on their 1-dyad point → f(21.5) = 5.6×10⁻⁷ (15× the Wu floor; the source itself documents the low-temperature defect penalty — their 90 °C films sit at 10⁻³, 60 °C short-purge films at 10⁻¹), s = 118 µm (≫ d_org ✓), τ²(100 nm) = 1.7×10⁶. Zero further refits:
+
+| n | predicted | measured | error |
+|---|---|---|---|
+| 2 | 4.6×10⁻⁴ | 6.6×10⁻⁴ | −0.16 dec |
+| 3 | 2.5×10⁻⁴ | 5.4×10⁻⁴ | −0.34 dec |
+| 4 | 1.7×10⁻⁴ | 5.3×10⁻⁴ | −0.49 dec |
+
+All residuals one-sided: the decorrelated-defect model lower-bounds transmission when defect density is high (residual near-aligned pinholes raise measured J), and the measured 2→4 plateau matches the weak steady-state n-dependence the authors themselves note (citing Graff). **Lag:** the parylene organic proxy gives 2/5/11 h (n = 2–4) vs their linear-in-n, >400 h — the pre-declared material-transfer limit (§3.5): lag is sorption-dominated (independently concluded by Kiese et al.). At fixed anchored P, matching lag(4) = 400 h requires an effective pV3D3 solubility S_eff ≈ 57 ≈ 38× parylene's — reported as an extracted effective parameter, not a measured property. **Device third anchor:** ≤3 % PCE loss after 300 h at 50 °C/50 %RH behind this 4-dyad barrier (WVTR(50/50) ≈ 5.2×10⁻⁴) bounds M_crit(20 %) ≥ 4.4×10⁻² g m⁻² even ignoring lag (conservative) — an independent third anchor between the figure-baseline (0.01) and the device floor (0.97). Their independently optimized d_in = 21.5 nm coincides with the lower edge of our closure window (22.5 [21.0–26.0] nm). *(The author-request e-mail is no longer needed; kept for provenance.)*
+
+### (b) Single-layer defect-density comparison — Carcia et al. (DuPont), APL 89, 031915 (2006)
+25 nm thermal-ALD Al2O3 on PEN, Ca test: 1.7×10⁻⁵ g m⁻² day⁻¹ at 38 °C and 6.5×10⁻⁵ at 60 °C (RH not stated in the abstract). Inverting our single-layer resistance form at 38 °C gives their effective defect fraction f(25 nm) = 3.3–3.9×10⁻⁹ (Δa = 1.0–0.85), i.e. **0.09–0.11× our calibrated floor** (density 0.4–0.5 vs 8.5 mm⁻²): the DuPont film is ~10× cleaner than the Wu film — on the expected side of the documented lab-to-lab envelope (best-in-class ALD vs a source with reported particle issues) and well inside its 2–4-order span. Reuse consequence: f_res is a *typical-lab* floor, not a universal constant (§3.5-v).
+
+### (c) Activation-energy cross-check (same source)
+The 38→60 °C pair implies an apparent Ea = 52.5 kJ/mol; our organic-transport prior is 40 ± 10 kJ/mol (+1.3σ). The temperature scaling used by the environment extrapolation is thus consistent with an independent two-temperature measurement.
+
+### (d) Domain-boundary probe — Meyer et al. nanolaminates
+Al2O3/ZrO2 nanolaminate, 40 nm total: 3.2×10⁻⁴ g m⁻² day⁻¹ at 80 °C/80 %RH (APL 96, 243308 (2010); structure introduced in Adv. Mater. 21, 1845–1849 (2009)). Chemistry and temperature both lie **outside** our calibrated domain, yet the floor-f prediction (5.9×10⁻⁴) lands within ×2 of the measurement (meas/pred 0.54, −0.27 dec). Recorded as a boundary observation, not a validation.
+
+### (e) Independent experimental confirmation of the lag-limited regime
+Graff et al. measured polymer/oxide multilayers at <10⁻⁵ g m⁻² day⁻¹ (25 °C/40 %RH) and concluded from combined transient and steady measurements that such readings are limited by lag-time effects rather than equilibrium diffusion [8] — the same mechanism identified by our §3.1 analysis, established experimentally in a second laboratory on a different multilayer system.
+
+### Named falsification targets (protocol in `external_validation/`)
+1. ~~Lee et al. dyad-and-lag series~~ — **achieved** (see (a); steady ladder −0.16/−0.34/−0.49 dec).
+2. **Kiese et al. layer-resolved lag dataset** (Thin Solid Films 672, 199–205): per-layer D and S measurements permit a mode-B test of the layer-lumped Frisch formula.

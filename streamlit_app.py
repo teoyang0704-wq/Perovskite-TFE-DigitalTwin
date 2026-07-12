@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Interactive TFE Digital Twin - v2 (environment control + honesty band +
+"""Interactive TFE Digital Twin — v2 (environment control + honesty band +
 constraint optimizer). Main file for Streamlit Community Cloud."""
 import os, sys, math
 import numpy as np
@@ -11,14 +11,15 @@ import streamlit as st
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(ROOT, "optimization"))
-from step6_optimize import (f_pin, arr, D_par, S_par, Ea_par, D_lat, Ea_lat,
+from step6_optimize import (f_pin, arr, D_par, S_par, Ea_par, D_lat, Ea_lat,  # noqa: E402
                             S_in, r_pin, M_CRIT, d_crit, evaluate)
 
 REPO = "https://github.com/teoyang0704-wq/Perovskite-TFE-DigitalTwin"
 FLOOR = 97.0
 G1, G2 = 22.5, 44.0
-T_CAL = 311.15
+T_CAL = 311.15                       # calibration-adjacent 38 C
 
+# ---------- physics: environment-aware lifetime (same formulas as paper) ----
 def lifetime_env(d_org, d_in, n, T_C, RH, mfac):
     T, da = T_C + 273.15, RH / 100.0
     P_org = arr(D_par, Ea_par, T) * S_par
@@ -42,13 +43,14 @@ def lifetime_env(d_org, d_in, n, T_C, RH, mfac):
     t80 = t_lag_h + (M_CRIT * mfac) / wvtr * 24.0
     return t80, wvtr, t_lag_h
 
-def ea_band(T_C):
+def ea_band(T_C):                    # honesty: Ea prior half-width 10 kJ/mol
     return math.exp(10e3 / 8.314 * abs(1 / (T_C + 273.15) - 1 / T_CAL))
 
+# ------------------------------- UI ----------------------------------------
 st.set_page_config(page_title="TFE Digital Twin", page_icon="🛡️", layout="wide")
-st.title("🛡️ Perovskite-TFE Digital Twin - design & environment explorer")
-st.caption(f"Literature-calibrated, defect-mediated 1-D twin | zero-refit validated "
-           f"(+0.11/-0.01 decade) | [paper & code]({REPO}) | research prototype")
+st.title("🛡️ Perovskite-TFE Digital Twin — design & environment explorer")
+st.caption(f"Literature-calibrated, defect-mediated 1-D twin · zero-refit validated "
+           f"(±0.25 decade) · [paper & code]({REPO}) · research prototype")
 
 DEFAULTS = dict(d_org=100, d_in=30, n=3, T_C=38, RH=90)
 for k, v in DEFAULTS.items():
@@ -64,20 +66,25 @@ with st.sidebar:
     st.slider("Relative humidity [%]", 30, 100, key="RH")
     pc = st.columns(3)
     def preset(t, rh): st.session_state.update(T_C=t, RH=rh)
-    pc[0].button("38/90", on_click=preset, args=(38, 90), use_container_width=True)
-    pc[1].button("85/85", on_click=preset, args=(85, 85), use_container_width=True)
-    pc[2].button("25/50", on_click=preset, args=(25, 50), use_container_width=True)
-    apply_floor = st.toggle("Device-anchored M_crit floor (x97)", value=True)
+    pc[0].button("38/90", on_click=preset, args=(38, 90), use_container_width=True,
+                 help="calibration-adjacent")
+    pc[1].button("85/85", on_click=preset, args=(85, 85), use_container_width=True,
+                 help="industry damp-heat")
+    pc[2].button("25/50", on_click=preset, args=(25, 50), use_container_width=True,
+                 help="indoor shelf")
+    apply_floor = st.toggle("Device-anchored M_crit floor (x97)", value=True,
+        help="Tier-1 floor 0.97 g/m2 from published device aging (paper Sec. 3.4). "
+             "Off = figure-baseline 0.01 g/m2.")
     st.markdown(f"---\n**Design window (G1-G2):** {G1}-{G2} nm")
 
 d_org, d_in, n = st.session_state.d_org, st.session_state.d_in, st.session_state.n
 T_C, RH = st.session_state.T_C, st.session_state.RH
 mfac = FLOOR if apply_floor else 1.0
 t80, wvtr, tlag = lifetime_env(d_org, d_in, n, T_C, RH, mfac)
-_, k38 = evaluate((float(d_org), float(d_in), int(n)))
+_, k38 = evaluate((float(d_org), float(d_in), int(n)))          # 38/90 reference KPIs
 
 if d_in < G1:
-    st.error(f"G1 violated: d_in < {G1} nm - pinhole closure incomplete.")
+    st.error(f"G1 violated: d_in < {G1} nm - pinhole closure incomplete; lifetime collapses.")
 elif d_in > G2:
     st.error(f"G2 violated: d_in > {G2} nm - cracking regime; lifetime AND durability collapse.")
 else:
@@ -87,7 +94,7 @@ b = ea_band(T_C)
 c = st.columns(4)
 c[0].metric(f"Lifetime @ {T_C} degC / {RH} %RH", f"{t80:,.0f} h", f"= {t80/8760:,.1f} yr")
 c[1].metric("Extrapolation uncertainty", f"x/ {b:.2f}",
-            "calibration-adjacent" if b < 1.15 else "Arrhenius-extrapolated",
+            "calibration-adjacent" if b < 1.15 else "Arrhenius-extrapolated (Ea prior +-10 kJ/mol)",
             delta_color="off")
 t85, _, _ = lifetime_env(d_org, d_in, n, 85, 85, mfac)
 c[2].metric("Same design @ 85/85", f"{t85:,.0f} h", f"= {t85/8760:,.1f} yr", delta_color="off")
@@ -100,7 +107,8 @@ c2[2].metric("Weight", f"{k38['weight']:.2f} g/m2")
 c2[3].metric("T_opt / T_max", f"{k38['Topt']*100:.1f} % | {k38['Tmax_C']:.1f} degC",
              "geometry-flat", delta_color="off")
 if RH > 95:
-    st.info("RH > 95%: Henry-linear sorption may underestimate uptake - paper Sec. 3.5(vii).")
+    st.info("RH > 95%: Henry-linear sorption may underestimate uptake (water clustering) "
+            "- see paper Sec. 3.5(vii).")
 
 @st.cache_data
 def load_grid():
@@ -146,18 +154,17 @@ with right:
 with st.expander("Why trust this? (validation & limits)"):
     p3 = os.path.join(ROOT, "figures", "Fig3_validation.png")
     if os.path.exists(p3):
-        st.image(p3, caption="Zero-refit validation vs Wu 2018.")
+        st.image(p3, caption="Zero-refit validation vs Wu et al. 2018 - steady state "
+                 "provably fails; the ~72 h transient matches to +-0.25 decade.")
     st.markdown(
-        "- Solver verified to **0.45%** vs analytic; every mechanism survives an "
-        "**ablation study** (SI S7).\n"
-        "- Zero-refit multilayer validation: **+0.11/-0.01 decade** at multi-day "
-        "durations (insensitive across 2.0-5.5 d); steady state provably excluded.\n"
+        "- Solver verified to **0.45%** vs the analytic Fickian solution; every retained "
+        "mechanism survives an **ablation study** (SI S7).\n"
         "- Thresholds carry 95% CIs from **N=500 Monte-Carlo through calibration**: "
-        "22.5 [21.0-26.0] / 44.0 [37.5-48.0] nm.\n"
-        "- **Honest limits**: calibrated at 38 degC on Al2O3/parylene-C (50 nm dyad "
-        "anchor, corrected 2026-07-10); environment sliders extrapolate by Arrhenius "
-        "(band above; rankings invariant); durability is a Basquin proxy; organic "
-        "planarization unmodeled (100 nm bound).\n"
-        f"- Paper, SI, provenance, source: [repository]({REPO}). Built with AI "
-        "assistance (Anthropic Claude); physics verified by the author.")
-st.caption("(c) 2026 Teo Yang | MIT | v0.9.3 | https://tfe-twin.streamlit.app")
+        "22.5 [21.0-26.0] / 44.0 [37.7-48.0] nm.\n"
+        "- **Honest limits**: calibrated at 38 degC on Al2O3/parylene-C; the environment "
+        "sliders extrapolate by Arrhenius (band shown above; rankings invariant, absolute "
+        "values shift); durability is a Basquin proxy tied to the diurnal cycle, not the "
+        "chamber setpoint; organic planarization unmodeled (100 nm bound).\n"
+        f"- Full paper, SI, provenance and this app's source: [repository]({REPO}). "
+        "Built with AI-assisted implementation (Anthropic Claude); model choices, protocols and verification directed by the author.")
+st.caption("(c) 2026 Teo Yang | MIT | v0.9.4 | https://tfe-twin.streamlit.app")

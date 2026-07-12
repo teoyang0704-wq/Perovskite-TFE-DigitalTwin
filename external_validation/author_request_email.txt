@@ -1,0 +1,29 @@
+To: Prof. Sung Gap Im (KAIST, sgim@kaist.ac.kr — verify address on lab page)
+Cc: first author (Y. I. Lee), if an address is listed
+Subject: Data request for a blind validation of a published TFE dataset (Adv. Energy Mater. 2018, 1701928)
+
+Dear Prof. Im,
+
+I am an independent student researcher preparing a manuscript for Solar Energy
+Materials and Solar Cells on a literature-calibrated digital twin for multilayer
+thin-film encapsulation geometry (code, app and full provenance are public:
+https://github.com/teoyang0704-wq/Perovskite-TFE-DigitalTwin ).
+
+The model is calibrated on a single published Al2O3/parylene-C dataset and
+predicts multilayer WVTR with zero refitting. Your pV3D3/Al2O3 dyad series
+(Fig. 2d of the paper above) is, to my knowledge, the best independent dataset
+for a genuine blind test, but I only have access to the abstract-level values.
+
+Would you be willing to share the numerical per-dyad WVTR values (and any
+transient/lag information) underlying Fig. 2d? The test protocol is
+pre-registered in the repository (external_validation/predict_external.py):
+I would re-anchor only on your 1-dyad point and report all outcomes,
+including failure, in the manuscript and repository.
+
+I would of course acknowledge your group's assistance. Thank you for
+considering this request.
+
+Respectfully,
+Teo Yang
+Independent researcher
+teoyang0704@icloud.com

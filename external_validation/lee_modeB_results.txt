@@ -1,0 +1,31 @@
+Stage A shape fit: A=1e+07 dc=1.07 nm C=40.5 d_crit=43.9 nm
+  residuals [decades]: [-0.005  0.047 -0.042  0.     0.   ]  max|.|=0.047
+Stage B: f(30nm)=6.67e-08  f_res=3.72e-08  -> pinhole density 8.49 /mm2, spacing 343 um
+  bare-hole conductance / open-vapor limit = 5.8e-06 (should be <1, spreading-limited)
+
+Zero-refit steady-state prediction (Fig.3 high-quality):
+  tau^2(sandwiched parylene) = 6.63e+05
+  1 dyad: model 1.70e-04 vs meas 1.70e-04  (+0.00 decades)
+  2 dyad: model 6.96e-05 vs meas 3.60e-05  (+0.29 decades)
+  3 dyad: model 4.37e-05 vs meas 7.70e-06  (+0.75 decades)
+
+Transient (finite MOCON test) — apparent WVTR:
+  1 dyad: t_lag=2.6 h | J(24h)=1.70e-04 J(72h)=1.70e-04 J(168h)=1.70e-04 | J_ss=1.70e-04 | meas=1.70e-04
+  2 dyad: t_lag=67.0 h | J(24h)=1.52e-05 J(72h)=4.60e-05 J(168h)=6.52e-05 | J_ss=6.96e-05 | meas=3.60e-05
+  3 dyad: t_lag=179.6 h | J(24h)=3.49e-07 J(72h)=7.61e-06 J(168h)=2.51e-05 | J_ss=4.37e-05 | meas=7.70e-06
+
+figure saved; calibrated params: f0=0.372 d_close=1.07 nm f_res=3.72e-08 f_crack0=1.51e-06 d_crit=43.9 nm
+ANCHOR n=1: f(21.5nm)=5.64e-07 (15x Wu floor) | s=118 um | tau2(100nm)=1.72e+06
+  sanity: s >> d_org? 118 um vs 0.1 um OK | closure edge: 21.5 vs G1 22.5[21-26]
+
+ZERO-REFIT PREDICTIONS (parylene organic proxy):
+  n=1: pred 3.00e-03 vs meas 3.0e-03  -> -0.00 dec | lag 0 h
+  n=2: pred 4.60e-04 vs meas 6.6e-04  -> -0.16 dec | lag 2 h
+  n=3: pred 2.49e-04 vs meas 5.4e-04  -> -0.34 dec | lag 5 h
+  n=4: pred 1.71e-04 vs meas 5.3e-04  -> -0.49 dec | lag 11 h
+  lag shape 1:2:3:4 = 0:2:5:11 (theirs: linear in n, >400 h at n=4)
+
+pV3D3 effective solubility to reach lag(4)=400 h at fixed P: S_eff >= 57 (parylene 1.5, x38)
+
+DEVICE ANCHOR: WVTR(50/50)~5.2e-04 -> max dose(300h, lag ignored)=6.54e-03 g/m2 at -3% PCE
+  => M_crit(20% def) >= 4.36e-02 g/m2 (independent 3rd anchor; sits between figure-baseline 0.01 and device floor 0.97)

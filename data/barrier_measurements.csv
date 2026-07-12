@@ -21,3 +21,7 @@ BM019,PET_SUB/[AL2O3_ALD_POOR(30nm)/PARYLENE_C_CVD(500nm)]x1,1,30,500,wvtr,=,1.6
 BM020,PET_SUB/[AL2O3_ALD_POOR(30nm)/PARYLENE_C_CVD(500nm)]x2,2,30,500,wvtr,=,1.6e-1,g/(m2*day),38,100,MOCON_AquatranII,5e-5,context,A,WU2018,Fig.3,digitized +-0.15 decade
 BM021,PET_SUB/[AL2O3_ALD_POOR(30nm)/PARYLENE_C_CVD(500nm)]x3,3,30,500,wvtr,=,1.3e-1,g/(m2*day),38,100,MOCON_AquatranII,5e-5,context,A,WU2018,Fig.3,saturating benefit of dyads at high pinhole density (decoupling collapse) - model sensitivity check
 BM022,WU2018V,dyad_3x_30nm,PET/(Al2O3 50->30nm?/parC 500nm)x3 - Fig.4 separate 30nm result,38C/100RH,1.0e-5,<,g/m2/day,validation_consistency,A,WU2018V,Fig.4 + abstract,"detection-limited reading; corrected-model steady 3.5e-5, multi-day apparent <1e-5 - consistent as lag-phase"
+BM023,LEE2018,dyad_1,Ca/pV3D3 800nm/Al2O3 21.5nm,38C/90RH,3.0e-3,=,g/m2/day,external_modeB_anchor,A,LEE2018,Fig.5a legend + Fig.2d,primary full text 2026-07-10; post-lag steady slope,,,,,
+BM024,LEE2018,dyad_2,+[100nm pV3D3/21.5nm Al2O3],38C/90RH,6.6e-4,=,g/m2/day,external_modeB_test,A,LEE2018,Fig.5a legend,pred 4.6e-4 (-0.16 dec),,,,,
+BM025,LEE2018,dyad_3,+[100/21.5]x2,38C/90RH,5.4e-4,=,g/m2/day,external_modeB_test,A,LEE2018,Fig.5a legend,pred 2.5e-4 (-0.34 dec),,,,,
+BM026,LEE2018,dyad_4,+[100/21.5]x3,38C/90RH,5.3e-4,=,g/m2/day,external_modeB_test,A,LEE2018,Fig.5a legend + text,pred 1.7e-4 (-0.49 dec); lag >400h,,,,,
