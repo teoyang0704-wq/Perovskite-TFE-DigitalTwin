@@ -1,0 +1,10 @@
+engine_symbol,material_id,chosen_value,note
+f0,AL2O3_ALD,0.372,runtime copy; corrected 50nm anchor; full provenance DB = engine_parameters.csv
+d_close_nm,AL2O3_ALD,1.07,
+f_res,AL2O3_ALD,3.72e-8,anchor f(50nm)=6.67e-8
+d_crit_nm,AL2O3_ALD,43.9,
+r_pinhole,AL2O3_ALD,5e-8,
+D_ref,PARYLENE_C_CVD,5.0e-13,
+S,PARYLENE_C_CVD,1.5,
+M_crit,PSC_DEVICE,0.01,figure baseline; device floor via x97 toggle
+M_crit_floor,PSC_DEVICE,0.97,
