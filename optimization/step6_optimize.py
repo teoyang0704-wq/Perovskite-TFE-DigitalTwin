@@ -19,13 +19,22 @@ Method
 Environment for lifetime: 38 C / 90 %RH (calibration-adjacent; Arrhenius
 rescaling to 85/85 shifts absolute T80, not geometry ranking).
 """
+import os
 import numpy as np, csv, os
 
 RG, TREF = 8.314, 298.15
 OUT = "/home/claude"
 
 # ---------------- calibrated parameters from the DB --------------------
-def load_params(path="/mnt/user-data/outputs/step1_db/engine_parameters.csv"):
+def load_params(path=None):
+    if path is None:
+        _here = os.path.dirname(os.path.abspath(__file__))
+        for _c in (os.path.join(_here, "..", "data", "engine_parameters_runtime.csv"),
+                   os.path.join(_here, "..", "data", "engine_parameters.csv")):
+            if os.path.exists(_c):
+                path = _c; break
+        else:
+            raise FileNotFoundError("engine parameter file not found")
     P = {}
     for r in csv.DictReader(open(path)):
         P[(r["engine_symbol"], r["material_id"])] = float(r["chosen_value"])
