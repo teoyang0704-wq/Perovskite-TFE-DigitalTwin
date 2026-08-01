@@ -1,0 +1,25 @@
+paper,in_frame,screening_outcome,best_value_g_m2_day,ladder_numerical,floor_reported
+"Wu 2018, Al2O3/parylene (RSC Adv)",yes,ladder,7.70e-06,yes,no
+"Kim 2018, Al2O3/silamer (ACS AMI)",yes,best-only,1.11e-06,no,no
+"Seo 2015, Al2O3/ZrO2/alucone (Nanoscale RL)",yes,best-only,8.50e-05,no,no
+"Al2O3/alucone, 5.5 dyads",yes,best-only,1.44e-04,no,no
+"O3-based laminate, 1 to 3 layers",yes,ladder,2.37e-05,yes,no
+"TiO2/Al2O3, ozone vs water (Org Electron)",yes,not-ladder,1.00e-04,no,no
+"npj Flex El 2025, stress-released Al2O3",yes,best-only,4.49e-05,no,no
+ZAM/silamer multilayer (J Inf Display),yes,best-only,5.94e-05,no,no
+"npj Flex El 2025, silbione hybrimer",yes,best-only,7.83e-06,no,no
+SAOLs-Al2O3 nanolaminate (ACS AMI),yes,best-only,2.99e-07,no,no
+"Wang, PDMS/Al2O3 nanolaminate 1.5 & 2.5 dyads",yes,best-only,1.00e-05,no,no
+"Org Electron 2024, parylene/alumina 3 dyads",yes,best-only,8.70e-04,no,no
+"Al2O3/alucone, dyad-number study",yes,best-only,,no,no
+"Optical Ca test, multiple pathways (method)",yes,not-ladder,2.10e-04,no,no
+"Rev Sci Instrum, Ca-test sensitivity limits",yes,not-ladder,,no,no
+"Buelow 2014, AlOx/plasma polymer (Disc Nano)",yes,ladder,1.20e-03,yes,yes
+"Kim 2014, SiOx & SiNx/parylene annealing",yes,ladder,6.60e-04,yes,no
+"Graff 2004, lag time vs equilibrium (model)",no,out-of-frame,,no,no
+"Graham, barrier vs shelf lifetime correlation",yes,best-only,,no,no
+SiNx/parylene on PC (Surf Coat Technol),yes,not-ladder,,no,no
+"Al2O3/s-NEA multilayers, 3 units (JMSE)",yes,best-only,2.60e-05,no,no
+reviews (x2),no,out-of-frame,,no,no
+patents (x7),no,out-of-frame,,no,no
+vendor / trade pages (x3),no,out-of-frame,,no,no

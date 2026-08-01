@@ -1,0 +1,6 @@
+fixture,floor_g_m2_day,measured_or_inferred,how_obtained
+"Buelow, glass lid + epoxy bead",6.0e-04,measured,glass lid run through the same calcium fixture; 11x11 mm aperture
+"Bertrand thesis, lid + epoxy edge seal",1.0e-04,measured,an ALD film and a glass lid both read this; authors assign it to the epoxy seal
+"Graham, lid + polyisobutylene sealant",5.0e-05,measured,separate test of the edge sealant alone
+"Graham, no lid, barrier on the sensor",2.0e-06,measured,"same laboratory and method, no adhesive seal"
+"Lee (inferred, not measured)",3.9e-04,inferred,no lid: inferred here from the ladder shape; lateral path is the stack's own organics

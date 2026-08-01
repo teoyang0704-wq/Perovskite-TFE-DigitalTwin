@@ -167,4 +167,4 @@ with st.expander("Why trust this? (validation & limits)"):
         "chamber setpoint; organic planarization unmodeled (100 nm bound).\n"
         f"- Full paper, SI, provenance and this app's source: [repository]({REPO}). "
         "Built with AI-assisted implementation (Anthropic Claude); model choices, protocols and verification directed by the author.")
-st.caption("(c) 2026 Teo Yang | MIT | v0.9.4 | https://tfe-twin.streamlit.app")
+st.caption("(c) 2026 Teo Yang | MIT | v0.10.0 | https://tfe-twin.streamlit.app")
