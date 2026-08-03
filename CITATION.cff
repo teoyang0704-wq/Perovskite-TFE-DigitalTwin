@@ -3,7 +3,7 @@ title: "Perovskite-TFE-DigitalTwin: physics-informed digital twin for multilayer
 authors:
   - family-names: "Yang"
     given-names: "Teo"
-version: 0.10.0
+version: 0.11.0
 date-released: 2026-08-01
 license: MIT
 repository-code: "https://github.com/teoyang0704-wq/Perovskite-TFE-DigitalTwin"

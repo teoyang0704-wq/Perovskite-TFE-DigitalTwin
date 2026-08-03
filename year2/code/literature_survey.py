@@ -43,6 +43,13 @@ LADDERS = {
     # in series, measured in a tritiated-water cell with a clamped Viton o-ring
     "Groner (tritium cell, o-ring)": (
         {1: 1.0e-3, 2: 7.0e-4}, None, "100 %RH, ambient"),
+    # added 2026-08-01: five-point ladder, RSC Adv. 9 (2019) 20884
+    "Al2O3/alucone (Ca, 25 C/60 %RH)": (
+        {1.5: 1.74e-2, 2.5: 2.47e-3, 3.5: 6.41e-4, 4.5: 2.23e-4, 5.5: 1.44e-4},
+        None, "25 C/60 %RH"),
+    # two-point ladder; the second value sits at 99 % of its bound
+    "SiNx/Al2O3 (Ca)": (
+        {1.5: 2.6e-4, 2.5: 1.55e-4}, None, "Ca test"),
 }
 # independently measured fixture floors (impermeable control through the same test)
 FLOORS = {

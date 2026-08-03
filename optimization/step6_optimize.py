@@ -34,7 +34,7 @@ def load_params(path=None):
             if os.path.exists(_c):
                 path = _c; break
         else:
-            raise FileNotFoundError("engine parameter file not found")
+            raise FileNotFoundError("engine parameter file not found in repository")
     P = {}
     for r in csv.DictReader(open(path)):
         P[(r["engine_symbol"], r["material_id"])] = float(r["chosen_value"])

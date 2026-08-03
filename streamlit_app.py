@@ -48,6 +48,17 @@ def ea_band(T_C):                    # honesty: Ea prior half-width 10 kJ/mol
 
 # ------------------------------- UI ----------------------------------------
 st.set_page_config(page_title="TFE Digital Twin", page_icon="🛡️", layout="wide")
+
+_MODE = st.sidebar.radio(
+    "Mode",
+    ["Explore the published calibration", "Use my own film (BYOD)"],
+    help="The published calibration describes one laboratory's deposition "
+         "campaign. To design for your own film, re-anchor on your data.")
+if _MODE.startswith("Use my own"):
+    import byod_reanchor
+    byod_reanchor.render()
+    st.stop()
+
 st.title("🛡️ Perovskite-TFE Digital Twin — design & environment explorer")
 st.caption(f"Literature-calibrated, defect-mediated 1-D twin · zero-refit validated "
            f"(±0.25 decade) · [paper & code]({REPO}) · research prototype")
@@ -167,4 +178,4 @@ with st.expander("Why trust this? (validation & limits)"):
         "chamber setpoint; organic planarization unmodeled (100 nm bound).\n"
         f"- Full paper, SI, provenance and this app's source: [repository]({REPO}). "
         "Built with AI-assisted implementation (Anthropic Claude); model choices, protocols and verification directed by the author.")
-st.caption("(c) 2026 Teo Yang | MIT | v0.10.0 | https://tfe-twin.streamlit.app")
+st.caption("(c) 2026 Teo Yang | MIT | v0.11.0 | https://tfe-twin.streamlit.app")

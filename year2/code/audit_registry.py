@@ -46,6 +46,11 @@ LADDERS = {
         "20 C/50 %RH", "10-dyad value is censored at the floor (<5e-5)"),
     "Kim 2014 SiOx/parylene": (
         {1: 3.1e-2, 3: 6.6e-4}, None, "Ca", "20 C/50 %RH", "values in text"),
+    "Al2O3/alucone 2019 (five points)": (
+        {1.5: 1.74e-2, 2.5: 2.47e-3, 3.5: 6.41e-4, 4.5: 2.23e-4, 5.5: 1.44e-4},
+        None, "Ca", "25 C/60 %RH", "values in text"),
+    "SiNx/Al2O3 hygroscopic interlayer": (
+        {1.5: 2.6e-4, 2.5: 1.55e-4}, None, "Ca", "n/s", "values in text"),
 }
 
 # fixture floors reported by the authors themselves, from an impermeable
