@@ -1,10 +1,13 @@
 # Perovskite-TFE-DigitalTwin
 Physics-informed digital-twin framework for thin-film encapsulation (TFE) geometry design:
 literature-calibrated defect-mediated 1-D moisture/heat PDE engine, 6-objective Pareto
-exploration (self-implemented NSGA-II + exhaustive ground truth), exact Shapley/Sobol
+exploration (self-implemented NSGA-II + exhaustive ground truth), Shapley/Sobol
 physics-mapped interpretation, and calibration-through uncertainty quantification.
 
 **Live demo:** https://tfe-twin.streamlit.app  (interactive twin: design sliders, Pareto map, M_crit tiers)
+Streamlit's free tier
+suspends idle apps. If the link is cold it may take ~30 s to wake, and it can be taken down without notice.
+Everything the demo shows is reproducible from the scripts below, which are the authoritative artefact.
 
 ## Reproduce
 pip install -r requirements.txt
