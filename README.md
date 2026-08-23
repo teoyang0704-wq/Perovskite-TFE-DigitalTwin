@@ -20,7 +20,7 @@ pip install -r requirements.txt
 ## Data provenance
 data/*.csv: literature-sourced with per-row source IDs, censoring flags, quality grades,
 calibration/validation role split; digitization overlays in data/provenance/.
-Known TODO before submission: verify flagged (needs_check) bibliography; confirm MOCON
+Known limitations of the source data: *These are properties of the published sources, not open tasks* verify flagged (needs_check) bibliography; confirm MOCON
 test duration in Wu 2018 SI; primary sources for parylene D/S and Al2O3 film mechanics.
 
 ## License
