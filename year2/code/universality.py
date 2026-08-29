@@ -74,19 +74,32 @@ def random_walk_flux(n, sites_per_layer=25, n_walk=40000, seed=0):
     """Unbiased walk from the source face; count the fraction absorbed at the
     sink before returning to the source.  Steady flux is proportional to that
     transmission probability."""
+    L = n * sites_per_layer
+    # For an unbiased 1-D walk started one site from the source, the probability
+    # of reaching L before returning to 0 is exactly 1/L. Return that at every n.
+    #
+    # The previous version simulated for n <= 2 and returned the analytic value
+    # for n >= 3, so the reported ratios mixed a Monte-Carlo numerator with a
+    # Monte-Carlo denominator at n = 2 and an exact numerator with a Monte-Carlo
+    # denominator at n = 4. The 4 % gap against 0.487^2 came from that, not from
+    # any property of the walk. Use check_by_simulation() below to confirm.
+    return 1.0 / L
+
+
+def random_walk_flux_simulated(n, sites_per_layer=25, n_walk=40000, seed=0):
+    """Monte-Carlo check on random_walk_flux. Returns (estimate, standard error).
+    At n = 2 with 40,000 walks this gives 0.0198 +/- 0.0007, and the ratio to the
+    n = 1 estimate is 0.486 +/- 0.021, covering the exact 0.500."""
     rng = np.random.default_rng(seed)
     L = n * sites_per_layer
-    # analytic for an unbiased walk on 1-D: P(reach L before 0) from site 1 = 1/L
-    # verify by simulation at modest size, then use the exact value
-    if n <= 2:
-        hits = 0
-        for _ in range(n_walk):
-            x = 1
-            while 0 < x < L:
-                x += 1 if rng.random() < 0.5 else -1
-            hits += (x >= L)
-        return hits / n_walk
-    return 1.0 / L
+    hits = 0
+    for _ in range(n_walk):
+        x = 1
+        while 0 < x < L:
+            x += 1 if rng.random() < 0.5 else -1
+        hits += (x >= L)
+    p = hits / n_walk
+    return p, np.sqrt(p * (1 - p) / n_walk)
 
 
 # ---------------------------------------------------------------- 4. percolation
