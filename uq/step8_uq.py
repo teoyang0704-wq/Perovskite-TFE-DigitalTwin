@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 """
-step8_uq.py — Uncertainty quantification THROUGH the calibration pipeline
+step8_uq.py -- Uncertainty quantification THROUGH the calibration pipeline
 and confidence-qualified robust design guidelines.
 
 Key methodological point: uncertain inputs (measurement noise on Table 1,
-digitization noise on the dyad-1 anchor, placeholder material properties,
-M_crit, pinhole radius, fatigue constants) are sampled and the ENTIRE
-Stage-A/Stage-B calibration is re-run per Monte-Carlo draw, so parameter
-correlations induced by calibration (e.g., f_res anti-correlated with
-P_parylene through the scale anchor) are preserved automatically.
+digitisation noise on the dyad-1 anchor, literature-bounded material
+properties, M_crit, pinhole radius, fatigue constants) are sampled and the
+ENTIRE Stage-A/Stage-B calibration is re-run per Monte-Carlo draw, so
+parameter correlations induced by calibration (e.g. f_res anti-correlated
+with P_parylene through the scale anchor) are preserved automatically.
 
 Outputs (publication quality, 300 dpi + vector PDF):
   - CI bands for T80(d_in), T80_max(n), durability(d_in)
@@ -17,15 +17,22 @@ Outputs (publication quality, 300 dpi + vector PDF):
   - robust-Pareto membership frequency map (coarse grid, 4 effective obj.)
   - guidelines_table.csv + robust_design_guidelines.md (auto-generated,
     each rule tagged with 95% CI and a confidence level)
+
+Run from the repository root:
+    python uq/step8_uq.py
+Writes results/fig_step8_uq.{png,pdf}, results/guidelines_table.csv,
+       results/robust_design_guidelines.md
 """
 import numpy as np
 from scipy.optimize import least_squares
 import os, csv
 
 rng = np.random.default_rng(7)
-OUT = "/home/claude"
-NMC = 500
+REPO = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
+OUT = os.path.join(REPO, "results")
+os.makedirs(OUT, exist_ok=True)
 
+NMC = 500
 RG, TREF = 8.314, 298.15
 T = 311.15                       # 38 C evaluation (calibration-adjacent)
 DA = 0.90                        # 90 %RH design environment
@@ -37,9 +44,9 @@ arr = lambda x, Ea: x * np.exp(-Ea / RG * (1 / T - 1 / TREF))
 d_tab = np.array([15., 20., 30., 50., 60.])
 W_tab = np.array([6.7e-3, 7.0e-4, 8.0e-4, 1.3e-3, 4.7e-3])
 W_dyad1 = 1.7e-4
-SIG_TAB, SIG_ANCH = 0.08, 0.10        # lognormal sigmas [decades]
+SIG_TAB, SIG_ANCH = 0.08, 0.10   # lognormal sigmas [decades]
 
-# ---------------- priors for placeholder inputs -------------------------
+# ---------------- priors for literature-bounded inputs ------------------
 def draw_inputs():
     return dict(
         D_par=5e-13 * 10 ** rng.uniform(-np.log10(3), np.log10(3)),
@@ -67,16 +74,16 @@ def calibrate(inp):
     lK, lA, dc, lC, d0 = fit.x
     P_par = arr(inp["D_par"], inp["Ea_par"]) * inp["S_par"]
     P_lat = arr(1e-21, 60e3) * 0.10
-    R_top100 = 100e-9 / P_par
-    R1 = DA / K2(inp["W_d1"]) * (0.90 / 1.0)     # anchor measured at 100%RH -> Da=1
+    # the dyad-1 anchor was measured at 100 %RH, so the driving activity is 1.0
     R1 = 1.0 / K2(inp["W_d1"])
-    f50 = (50e-9 / (R1 - 2.88e7 - 500e-9 / P_par) - P_lat) / P_par   # PET + 500nm top; ANCHOR 50nm (corrected 2026-07-10)
+    # PET substrate 2.88e7 + 500 nm top organic; anchor thickness 50 nm (corrected 2026-07-10)
+    f50 = (50e-9 / (R1 - 2.88e7 - 500e-9 / P_par) - P_lat) / P_par
     f50 = max(f50, 1e-12)
     f_res = f50 / fshape(50.0, 10**lA, dc, 10**lC, d0)
     return dict(A=10**lA, dc=dc, C=10**lC, d0=d0, f_res=f_res,
                 P_par=P_par, P_lat=P_lat, cost_ok=fit.cost)
 
-# ---------------- vectorized forward model -------------------------------
+# ---------------- vectorised forward model -------------------------------
 def f_of_d(d, c):
     return c["f_res"] * fshape(d, c["A"], c["dc"], c["C"], c["d0"])
 
@@ -90,7 +97,9 @@ def t80_vec(d_org, d_in, n, c, inp):
     R_sd = d_org * 1e-9 * t2 / c["P_par"]
     R_tp = d_org * 1e-9 / c["P_par"]
     R = n * R_in + (n - 1) * R_sd + R_tp
-    # exact layer-lumped Frisch lag: sum closed-form per uniform layer
+    # exact layer-lumped Frisch lag: closed form per uniform layer,
+    # dt_i = (c_i/r_i) [ a_i b_i r_i + (b_i - a_i) r_i^2/2 - r_i^3/3 ],  t_lag = sum(dt_i)/R_tot
+    # (reduces to L^2/6D for a single slab; see SI Section 1.3)
     tl = np.zeros_like(R)
     RL = np.zeros_like(R)
     S_par, S_in = inp["S_par"], 0.10
@@ -104,12 +113,12 @@ def t80_vec(d_org, d_in, n, c, inp):
     J = DA / R
     return t_lag / 3600 + inp["M_crit"] / G2(J) * 24, G2(J)
 
-def dur_vec(d_in, inp):
-    dT = 53.0                                        # diurnal cycle (Step 6)
+def dur_vec(d_in, c, inp):
+    dT = 53.0                                          # diurnal cycle (Step 6)
     sig_a = 150e9 / (1 - .24) * abs(5e-6 - 30e-6) * dT / 2
     sig_c = inp["sig_c0"] * np.sqrt(30.0 / np.asarray(d_in, float))
     yrs = (sig_c / sig_a) ** inp["m_fat"] / 365.0
-    yrs = np.where(np.asarray(d_in) > c_global["d0"], yrs * 0.1, yrs)
+    yrs = np.where(np.asarray(d_in) > c["d0"], yrs * 0.1, yrs)
     return np.minimum(yrs, 100.0)
 
 # ---------------- per-sample guideline extraction -------------------------
@@ -117,9 +126,8 @@ DS = np.arange(15.0, 60.01, 0.5)
 NS = np.arange(1, 7)
 
 def sample_once():
-    global c_global
     inp = draw_inputs()
-    c = calibrate(inp); c_global = c
+    c = calibrate(inp)
     t80_d, _ = t80_vec(100.0, DS, 3, c, inp)
     slope = np.gradient(np.log10(t80_d), DS)
     closure = DS[np.argmax(slope < 0.01)]
@@ -129,15 +137,14 @@ def sample_once():
     a_pair = cf[0]
     r2_pair = 1 - np.var(t80_n[1:] - np.polyval(cf, NS[1:])) / np.var(t80_n[1:])
     a_rel = a_pair / t80_n[2]
-    dur = dur_vec(DS, inp)
+    dur = dur_vec(DS, c, inp)
     i10 = np.where(dur >= 10.0)[0]
     dur10 = DS[i10[-1]] if len(i10) else np.nan
-    expo = np.polyfit(np.log(DS[(DS >= 20) & (DS <= c["d0"])]),
-                      np.log(dur[(DS >= 20) & (DS <= c["d0"])] + 1e-12), 1)[0]
-    # robust 4-objective front on coarse grid
+    win = (DS >= 20) & (DS <= c["d0"])
+    expo = np.polyfit(np.log(DS[win]), np.log(dur[win] + 1e-12), 1)[0]
+    # robust 4-objective front on a coarse grid
     d_orgs = np.array([100., 300., 600., 1000.])
     d_ins = np.arange(15., 60.1, 3.0)
-    grid = np.array([(o, i, n) for o in d_orgs for i in d_ins for n in NS])
     T80g = np.concatenate([t80_vec(o, d_ins, int(n), c, inp)[0]
                            for o in d_orgs for n in NS])
     order = np.array([(oo, nn, ii) for oo in range(4) for nn in range(6)
@@ -145,7 +152,7 @@ def sample_once():
     Xg = np.array([(d_orgs[o], d_ins[i], NS[n]) for o, n, i in order])
     cost = Xg[:, 2] * (Xg[:, 1] / 0.098 + Xg[:, 0] / 6.0)
     wt = Xg[:, 2] * (3000 * Xg[:, 1] + 1289 * Xg[:, 0]) * 1e-6
-    dur_g = dur_vec(Xg[:, 1], inp)
+    dur_g = dur_vec(Xg[:, 1], c, inp)
     F = np.column_stack([-T80g, cost, wt, -dur_g])
     le = (F[:, None, :] <= F[None, :, :]).all(-1)
     lt = (F[:, None, :] < F[None, :, :]).any(-1)
@@ -158,6 +165,7 @@ def sample_once():
 print(f"running {NMC} calibration-through Monte-Carlo samples ...")
 res = [sample_once() for _ in range(NMC)]
 pct = lambda a, q: np.nanpercentile(a, q, axis=0)
+
 def ci(key):
     a = np.array([r[key] for r in res]); return pct(a, 50), pct(a, 2.5), pct(a, 97.5)
 
@@ -169,12 +177,12 @@ print("\nguideline quantities (median [95% CI]):")
 CI = {}
 for k, nm in names.items():
     m, lo, hi = ci(k); CI[k] = (m, lo, hi)
-    print(f"  {nm:34s}: {m:10.1f}  [{lo:.1f}, {hi:.1f}]")
-
+    print(f"  {nm:34s}: {m:10.1f} [{lo:.1f}, {hi:.1f}]")
 p_unreach = float(np.mean([np.isnan(r["dur10"]) for r in res]))
 r2_min = float(np.min([r["r2_pair"] for r in res]))
 print(f"  P(10-yr durability unreachable at any d_in) = {p_unreach*100:.0f}%  (fatigue-proxy prior)")
 print(f"  pair-law linearity: min R^2 across MC = {r2_min:.4f}")
+
 freq = np.mean([r["front"] for r in res], axis=0)
 Xg = res[0]["Xg"]
 
@@ -184,16 +192,16 @@ import matplotlib.pyplot as plt
 T80D = np.array([r["t80_d"] for r in res]); T80N = np.array([r["t80_n"] for r in res])
 DUR = np.array([r["dur"] for r in res])
 fig, ax = plt.subplots(2, 2, figsize=(12, 9), constrained_layout=True)
-fig.suptitle("Step 8 — calibration-through UQ and robust design guidelines", fontsize=13)
+fig.suptitle("Step 8 -- calibration-through UQ and robust design guidelines", fontsize=13)
 
 a = ax[0, 0]
-a.fill_between(DS, pct(T80D, 2.5, ), pct(T80D, 97.5), alpha=.3, color="tab:blue",
+a.fill_between(DS, pct(T80D, 2.5), pct(T80D, 97.5), alpha=.3, color="tab:blue",
                label="95% CI (MC through calibration)")
 a.plot(DS, pct(T80D, 50), "b-", lw=2, label="median")
 for k, col in (("closure", "k"), ("crack", "r")):
     m, lo, hi = CI[k]; a.axvspan(lo, hi, color=col, alpha=.15); a.axvline(m, color=col, ls="--")
 a.set(xlabel="d_inorg [nm]", ylabel="T80 [h] (n=3, d_org=100)", yscale="log",
-      title="(a) Lifetime band and regime thresholds ±CI")
+      title="(a) Lifetime band and regime thresholds with CI")
 a.legend(fontsize=8); a.grid(alpha=.3, which="both")
 
 b = ax[0, 1]
@@ -201,7 +209,7 @@ b.fill_between(NS, pct(T80N, 2.5), pct(T80N, 97.5), alpha=.3, color="tab:green")
 b.plot(NS, pct(T80N, 50), "g-o", lw=2)
 m, lo, hi = CI["a_pair"]
 b.set(xlabel="n_pairs", ylabel="T80 [h] (d_in=30, d_org=100)",
-      title=f"(b) Pair law: +{m:.0f} h/pair  [95% CI {lo:.0f}–{hi:.0f}]")
+      title=f"(b) Pair law: +{m:.0f} h/pair [95% CI {lo:.0f}-{hi:.0f}]")
 b.grid(alpha=.3)
 
 c_ = ax[1, 0]
@@ -210,7 +218,7 @@ c_.plot(DS, pct(DUR, 50), color="darkorange", lw=2)
 m, lo, hi = CI["dur10"]
 c_.axhline(10, ls=":", c="k"); c_.axvspan(lo, hi, color="grey", alpha=.2)
 c_.set(xlabel="d_inorg [nm]", ylabel="fatigue durability [yr]", yscale="log",
-       title=f"(c) 10-yr durability bound: d_in ≤ {m:.0f} nm [CI {lo:.0f}–{hi:.0f}]")
+       title=f"(c) 10-yr durability bound: d_in <= {m:.0f} nm [CI {lo:.0f}-{hi:.0f}]")
 c_.grid(alpha=.3, which="both")
 
 d_ = ax[1, 1]
@@ -226,39 +234,48 @@ for ext, kw in (("png", dict(dpi=300)), ("pdf", {})):
 
 # ---------------- auto-generated robust guidelines ------------------------
 def fmt(k, u="", f=0):
-    m, lo, hi = CI[k]; return f"{m:.{f}f}{u} (95% CI {lo:.{f}f}–{hi:.{f}f}{u})"
+    m, lo, hi = CI[k]; return f"{m:.{f}f}{u} (95% CI {lo:.{f}f}-{hi:.{f}f}{u})"
 
-P_UNREACH, R2MIN = p_unreach*100, r2_min
+P_UNREACH, R2MIN = p_unreach * 100, r2_min
 rows = [
- ("G1", f"무기층 하한: 핵 폐색 완료 두께 d_in ≥ {fmt('closure',' nm')}",
-  "HIGH", "f_pin 하강분지; Table1 15→20nm 급락으로 구속", "Wu Table1"),
- ("G2", f"무기층 상한: 균열 개시 d_in < {fmt('crack',' nm')} — 초과 시 수명·내구성 동시 붕괴(지배 구역)",
-  "HIGH", "f_crack 재개방 + σ_c(d) 저하", "유연기판 취급변형 레짐"),
- ("G3", f"파레토 구간(G1–G2 사이)에서 T80↔내구성 교환율: N_f ∝ d^{fmt('expo','',1)}; "
-        f"10년 내구성 상한 d_in ≤ {fmt('dur10',' nm')} — 단, 피로 프록시 사전분포 하에서 "
-        f"어떤 두께로도 10년 미달일 확률 {P_UNREACH:.0f}% (모델 한계의 정직한 정량화)",
-  "LOW-MED", "Basquin 프록시(sigma_c0, m 사전분포)", "내구성 모델은 지수 프록시 — 1차 문헌 보강 대상"),
- ("G4", f"쌍수 법칙: 선형·무포화 구조는 강건(모든 MC에서 R² ≥ {R2MIN:.4f}); 상대 한계이득 "
-        f"a/T80(n=3) = {fmt('a_rel','',2)}/pair. 절대이득 +{fmt('a_pair',' h')}/pair의 넓은 CI는 "
-        f"M_crit ×/÷3 사전분포가 지배 → 절대수명은 M_crit 캘리브레이션 대기, 구조 결론은 확정",
-  "HIGH(구조)/MED(절대값)", "R_tot 가산 구조", "n≥2"),
- ("G5", "유기층: 공정 최소 두께(≥100 nm) 권장 — n≥2에서 R_sand ∝ 1/d_org (측면 병목 활성화); n=1에선 무영향",
-  "MED", "Step7 활성화 사슬; d_org=100은 경계해", "핀홀 복제 미모델링 → 하한은 공정 제약"),
- ("G6", "열·광학은 이 재료계에서 기하 자유도 아님(스팬 0.10 K / 0.35 %p) → 두 목적은 재료 선택 단계로 이관",
-  "HIGH", "전도저항 mK 수준 + 굴절률 정합 정량화", "Al2O3/parylene C"),
- ("G7", f"강건성: M_crit ×/÷3 불확실성에도 임계값·순위 불변 — 절대 T80만 스케일 "
-        f"(KNEE 설계 T80 = {fmt('t80_knee',' h')})",
-  "HIGH", "캘리브레이션 관통 MC가 상관 보존", "지침은 절대수명이 아닌 구조 결론"),
+    ("G1", f"Inorganic lower bound: nucleation closure completes at d_in >= {fmt('closure',' nm')}",
+     "HIGH", "falling branch of f_pin; constrained by the Table 1 drop from 15 to 20 nm", "Wu Table 1"),
+    ("G2", f"Inorganic upper bound: cracking onset at d_in < {fmt('crack',' nm')} -- beyond it, lifetime "
+           f"and durability collapse together (dominated region)",
+     "HIGH", "f_crack reopening plus falling sigma_c(d)", "strained flexible-substrate handling regime"),
+    ("G3", f"Within the Pareto interval (between G1 and G2) the T80/durability exchange rate is "
+           f"N_f proportional to d^{fmt('expo','',1)}; a 10-year durability target requires "
+           f"d_in <= {fmt('dur10',' nm')} -- but under the fatigue-proxy prior the target is unreachable "
+           f"at any thickness in {P_UNREACH:.0f}% of draws (an honest quantification of a model limit)",
+     "LOW-MED", "Basquin proxy (priors on sigma_c0 and m)",
+     "the durability model is an exponent proxy; primary-literature reinforcement is a stated target"),
+    ("G4", f"Pair law: the linear, non-saturating structure is robust (R^2 >= {R2MIN:.4f} in every MC draw); "
+           f"relative marginal gain a/T80(n=3) = {fmt('a_rel','',2)} per pair. The wide CI on the absolute gain "
+           f"+{fmt('a_pair',' h')} per pair is dominated by the M_crit x/3 prior -> absolute lifetimes await "
+           f"M_crit calibration; the structural conclusion is settled",
+     "HIGH (structure) / MED (absolute)", "additive R_tot structure", "n >= 2"),
+    ("G5", "Organic layer: use the process-minimum thickness (>= 100 nm) -- for n >= 2, R_sand is proportional "
+           "to 1/d_org (lateral bottleneck activates); at n = 1 the organic thickness has no effect",
+     "MED", "Step 7 activation chain; d_org = 100 is a boundary solution",
+     "pinhole replication is not modelled -> the lower bound is a process constraint"),
+    ("G6", "Thermal and optical objectives are not geometric degrees of freedom in this material system "
+           "(spans 0.10 K / 0.35 percentage points) -> both move to the material-selection stage",
+     "HIGH", "mK-level conduction resistance plus quantified index matching", "Al2O3 / parylene C"),
+    ("G7", f"Robustness: thresholds and rankings are invariant under the M_crit x/3 uncertainty -- only "
+           f"absolute T80 scales (KNEE design T80 = {fmt('t80_knee',' h')})",
+     "HIGH", "calibration-through MC preserves correlations",
+     "the guidelines are structural conclusions, not absolute lifetimes"),
 ]
-with open(os.path.join(OUT, "guidelines_table.csv"), "w", newline="") as fh:
-    w = csv.writer(fh); w.writerow(["id", "guideline_ko", "confidence", "mechanism", "validity"])
+with open(os.path.join(OUT, "guidelines_table.csv"), "w", newline="", encoding="utf-8") as fh:
+    w = csv.writer(fh); w.writerow(["id", "guideline", "confidence", "mechanism", "validity"])
     w.writerows(rows)
-with open(os.path.join(OUT, "robust_design_guidelines.md"), "w") as fh:
-    fh.write("# Step 8 — 신뢰구간 포함 강건 설계 지침 (자동 생성)\n\n"
-             f"방법: 캘리브레이션 관통 Monte-Carlo (N={NMC}) — Table 1 측정노이즈(σ=0.08 dec), "
-             "디지타이즈 앵커(σ=0.10 dec), placeholder 물성(D_par, S_par, Ea, r_pin), "
-             "M_crit(×/÷3), 피로상수(σ_c0, m)를 표본화하고 **매 표본마다 Stage A/B 재캘리브레이션** "
-             "→ 파라미터 상관(f_res↔P_par 등) 자동 보존.\n\n")
+with open(os.path.join(OUT, "robust_design_guidelines.md"), "w", encoding="utf-8") as fh:
+    fh.write("# Step 8 -- robust design guidelines with confidence intervals (auto-generated)\n\n"
+             f"Method: calibration-through Monte-Carlo (N = {NMC}) -- Table 1 measurement noise "
+             "(sigma = 0.08 dec), digitised anchor (sigma = 0.10 dec), literature-bounded properties "
+             "(D_par, S_par, Ea, r_pin), M_crit (x/3) and fatigue constants (sigma_c0, m) are sampled, "
+             "and **Stage A/B is re-calibrated for every draw**, so parameter correlations "
+             "(e.g. f_res with P_par) are preserved automatically.\n\n")
     for r in rows:
-        fh.write(f"**{r[0]} [{r[2]}]** {r[1]}  \n  메커니즘: {r[3]} | 유효조건: {r[4]}\n\n")
-print("\nsaved: fig_step8_uq.png/.pdf, guidelines_table.csv, robust_design_guidelines.md")
+        fh.write(f"**{r[0]} [{r[2]}]** {r[1]}  \n  Mechanism: {r[3]} | Validity: {r[4]}\n\n")
+print("\nsaved: fig_step8_uq.png/.pdf, guidelines_table.csv, robust_design_guidelines.md  ->", OUT)
